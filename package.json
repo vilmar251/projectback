@@ -5,8 +5,7 @@
   "scripts": {
     "build": "tsc",
     "start:prod": "node ./dist/main.js",
-    "start": "ts-node ./src/main.ts",
-    "lint": "eslint ./src --max-warnings=0"
+    "start": "ts-node ./src/main.ts"
   },
   "prettier": {
     "singleQuote": true,
