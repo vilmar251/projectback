@@ -1,11 +1,7 @@
 import express, { Request, Response } from 'express';
 
 const server = express();
-const a: string = '';
-const b: string = '';
 
-if (a == b) {
-}
 const port = 2000;
 server.get('/task/:id', (request: Request, res: Response) => {
   const id = request.params.id;
