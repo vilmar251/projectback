@@ -1,10 +1,12 @@
 import express, { Request, Response } from 'express';
 import { logRoutes } from './bootstrap/log-routes';
+import { LogRequestMiddleware } from './middlewares';
 import taskRouter from './modules/task/task.router';
 
 const server = express();
 
 server.use(express.json());
+server.use(LogRequestMiddleware);
 
 const port = 2000;
 
