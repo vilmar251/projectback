@@ -2,6 +2,7 @@ import express, { Request, Response } from 'express';
 import { logRoutes } from './bootstrap/log-routes';
 import { LogRequestMiddleware } from './middlewares';
 import taskRouter from './modules/task/task.router';
+import userController from './modules/users/user.controller';
 
 const server = express();
 
@@ -15,6 +16,7 @@ server.get('/', (req: Request, res: Response) => {
 });
 
 server.use('/task', taskRouter);
+server.use('/user', userController);
 
 logRoutes(server);
 
