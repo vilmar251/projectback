@@ -1,4 +1,8 @@
-type User = any;
+type User = {
+  id: string;
+  email: string;
+  password: string;
+};
 
 const storage: User[] = [];
 
