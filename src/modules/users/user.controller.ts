@@ -1,4 +1,5 @@
 import express, { Request, Response } from 'express';
+import { userService } from './user.service';
 
 const userController = express.Router();
 
@@ -8,8 +9,11 @@ userController.delete('/profile', (req: Request, res: Response) => {
 });
 
 // Получение списка пользователей
-userController.get('/profile', (req: Request, res: Response) => {
-  res.status(501).json({ message: 'Not Implemented' });
+userController.get('/profile/:id', (req: Request, res: Response) => {
+  const id = Number(req.params.id);
+
+  const result = userService.getProfile(id);
+  res.json(result);
 });
 
 // Логин пользователя
@@ -18,8 +22,12 @@ userController.post('/login', (req: Request, res: Response) => {
 });
 
 // Регистрация нового пользователя
-userController.post('/registration', (req: Request, res: Response) => {
-  res.status(501).json({ message: 'Not Implemented' });
+userController.post('/register', (req: Request, res: Response) => {
+  const body = req.body;
+
+  const result = userService.create(body);
+
+  res.json(result);
 });
 
 // Обновление данных пользователя
