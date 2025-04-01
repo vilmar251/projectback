@@ -1,5 +1,6 @@
 import express, { Request, Response } from 'express';
 import { logRoutes } from './bootstrap/log-routes';
+import logger from './logger/pino.logger';
 import { LogRequestMiddleware } from './middlewares';
 import taskRouter from './modules/task/task.router';
 import userController from './modules/users/user.controller';
@@ -21,5 +22,5 @@ server.use('/user', userController);
 logRoutes(server);
 
 server.listen(port, () => {
-  console.log(`Server started on port ${port}`);
+  logger.info(`Server started on port ${port}`);
 });
