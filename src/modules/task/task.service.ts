@@ -21,9 +21,14 @@ export const taskService = {
   },
 
   create(task: Omit<Task, 'id'>) {
-    logger.info(`Создание новой задачи title=${task.title}`);
-    const result = taskRepository.save(task);
+    console.log('=== New Task Created ===');
+    console.log('Title:', task.title);
+    console.log('Description:', task.description);
+    console.log('Importance:', task.importance);
+    console.log('Status:', task.status);
+    console.log('=====================');
 
+    const result = taskRepository.save(task);
     return result;
   },
 };
