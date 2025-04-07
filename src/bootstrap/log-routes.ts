@@ -1,5 +1,3 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
-
 export const logRoutes = (server: any) => {
   const globalHandlers = server._router.stack;
 

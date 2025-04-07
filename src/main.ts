@@ -1,24 +1,20 @@
-import express, { Request, Response } from 'express';
+import 'reflect-metadata';
+import express from 'express';
 import { logRoutes } from './bootstrap/log-routes';
 import logger from './logger/pino.logger';
 import { LogRequestMiddleware } from './middlewares';
 import { ErrorHandler } from './middlewares/error-handler';
-import taskRouter from './modules/task/task.router';
-import userController from './modules/users/user.controller';
+import taskController from './modules/task/task.controller';
 
 const server = express();
 
 server.use(express.json());
+
 server.use(LogRequestMiddleware);
 
 const port = 2000;
 
-server.get('/', (req: Request, res: Response) => {
-  res.json({ message: 'Ну привет!' });
-});
-
-server.use('/task', taskRouter);
-server.use('/user', userController);
+server.use('/task', taskController);
 
 server.use(ErrorHandler);
 logRoutes(server);
