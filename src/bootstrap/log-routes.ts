@@ -1,8 +1,8 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
-
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export const logRoutes = (server: any) => {
   const globalHandlers = server._router.stack;
 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   globalHandlers.map((globalHandler: any) => {
     if (globalHandler.name === 'router') {
       const globalPath = split(globalHandler.regexp).filter(Boolean).join('/');
@@ -10,6 +10,7 @@ export const logRoutes = (server: any) => {
       const nestedHandlers = globalHandler.handle.stack;
 
       console.log(`== ${globalPath.toUpperCase()} ==`);
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       nestedHandlers.map((nestedHandler: any) => {
         const { methods, path } = nestedHandler.route;
 
@@ -25,6 +26,7 @@ export const logRoutes = (server: any) => {
   console.log();
 };
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 const split = (path: any) => {
   if (typeof path === 'string') {
     return path.split('/');

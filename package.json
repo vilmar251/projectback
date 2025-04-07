@@ -20,6 +20,7 @@
   "description": "",
   "devDependencies": {
     "@eslint/js": "^9.22.0",
+    "@types/bcrypt": "^5.0.2",
     "@types/eslint__js": "^8.42.3",
     "@types/express": "^4.17.21",
     "@types/node": "^22.13.10",
@@ -43,6 +44,7 @@
     "express": "^4.21.2",
     "nanoid": "^3.3.11",
     "pino": "^9.6.0",
-    "pino-pretty": "^13.0.0"
+    "pino-pretty": "^13.0.0",
+    "reflect-metadata": "^0.2.2"
   }
 }

@@ -1,6 +1,5 @@
-import { plainToInstance } from 'class-transformer';
-import { validateSync } from 'class-validator';
 import express, { Request, Response } from 'express';
+import { validate } from '../../validator';
 import { CreateTaskDto } from './dto';
 import { taskService } from './task.service';
 
@@ -19,21 +18,8 @@ taskController.get('/:id', (req: Request, res: Response) => {
 });
 
 taskController.post('/', (req: Request, res: Response) => {
-  const instance = plainToInstance(CreateTaskDto, req.body);
-  const errors = validateSync(instance);
-  if (errors.length) {
-    const constraints = errors[0].constraints;
-    let message = 'Unknown validation error';
-
-    if (constraints) {
-      const key = Object.keys(constraints)[0];
-      message = constraints[key];
-    }
-
-    throw Error(message);
-  }
-
-  const result = taskService.create(instance);
+  const dto = validate(CreateTaskDto, req.body);
+  const result = taskService.create(dto);
 
   res.json(result);
 });
