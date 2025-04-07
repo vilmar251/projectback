@@ -18,4 +18,4 @@ export const validate = <T extends object>(dtoClass: new () => T, plainObject: o
   }
 
   return instance;
-}; 
+};
