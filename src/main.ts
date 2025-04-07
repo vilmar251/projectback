@@ -2,6 +2,7 @@ import express, { Request, Response } from 'express';
 import { logRoutes } from './bootstrap/log-routes';
 import logger from './logger/pino.logger';
 import { LogRequestMiddleware } from './middlewares';
+import { ErrorHandler } from './middlewares/error-handler';
 import taskRouter from './modules/task/task.router';
 import userController from './modules/users/user.controller';
 
@@ -19,6 +20,7 @@ server.get('/', (req: Request, res: Response) => {
 server.use('/task', taskRouter);
 server.use('/user', userController);
 
+server.use(ErrorHandler);
 logRoutes(server);
 
 server.listen(port, () => {
