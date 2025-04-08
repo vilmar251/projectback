@@ -5,6 +5,7 @@ import logger from './logger/pino.logger';
 import { LogRequestMiddleware } from './middlewares';
 import { ErrorHandler } from './middlewares/error-handler';
 import taskController from './modules/task/task.controller';
+import userController from './modules/users/user.controller';
 
 const server = express();
 
@@ -15,6 +16,7 @@ server.use(LogRequestMiddleware);
 const port = 2000;
 
 server.use('/task', taskController);
+server.use('/user', userController);
 
 server.use(ErrorHandler);
 logRoutes(server);
