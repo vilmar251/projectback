@@ -9,6 +9,9 @@ export const userRepository = {
     const createdUser = { ...user, id };
     storage.push(createdUser);
 
-    return true;
+    return createdUser;
+  },
+  findByEmail(email: User['email']): User | null {
+    return storage.find((user) => user.email === email) ?? null;
   },
 };
