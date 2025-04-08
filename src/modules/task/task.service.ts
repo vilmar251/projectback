@@ -5,7 +5,6 @@ import { Task } from './task.types';
 export const taskService = {
   findAll() {
     logger.info('Чтение всего списка задач');
-
     return taskRepository.findAll();
   },
 
@@ -21,13 +20,14 @@ export const taskService = {
   },
 
   create(task: Omit<Task, 'id'>) {
-    console.log('=== New Task Created ===');
-    console.log('Title:', task.title);
-    console.log('Description:', task.description);
-    console.log('Importance:', task.importance);
-    console.log('Status:', task.status);
-    console.log('=====================');
-
+    const taskInfo = `
+=== Новая задача создана ===
+Название: ${task.title}
+Описание: ${task.description}
+Важность: ${task.importance}
+Статус: ${task.status}
+----------------------------`;
+    logger.info(taskInfo);
     const result = taskRepository.save(task);
     return result;
   },
