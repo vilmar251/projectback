@@ -6,33 +6,42 @@ import { User } from './user.types';
 
 export const userService = {
   getProfile(id: number) {
-    logger.info(`Чтение профиля по id = ${id}`);
+    logger.info('Получение профиля пользователя', { id });
     return {
       id: id,
       name: 'example',
     };
   },
   create(user: Omit<User, 'id'>) {
-    logger.info('Регистрация нового пользователя ');
-
+    logger.info('Создание нового пользователя', { email: user.email });
     user.password = hashSync(user.password, 4);
-
     const result = userRepository.save(user);
-
+    logger.info('Пользователь создан', { email: result.email });
     return result;
   },
+  async findByEmail(email: string) {
+    logger.info('Поиск пользователя по email', { email });
+    return userRepository.findByEmail(email);
+  },
+  async verifyPassword(plainPassword: string, hashedPassword: string) {
+    logger.info('Проверка пароля пользователя');
+    return compareSync(plainPassword, hashedPassword);
+  },
   login(dto: LoginDto) {
-    logger.info(`Логин для ${dto.email}`);
+    logger.info('Попытка авторизации', { email: dto.email });
 
     const user = userRepository.findByEmail(dto.email);
     if (!user) {
+      logger.error('Пользователь не найден', { email: dto.email });
       throw Error('User not found');
     }
 
     if (!compareSync(dto.password, user.password)) {
+      logger.error('Неверный пароль', { email: dto.email });
       throw Error('Incorrect password');
     }
 
+    logger.info('Авторизация успешна', { email: user.email });
     return user;
   },
 };
