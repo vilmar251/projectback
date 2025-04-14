@@ -1,9 +1,9 @@
 import { compareSync, hashSync } from 'bcrypt';
+import { BadRequestError, NotFoundError, UnauthorizedError } from '../../errors';
 import logger from '../../logger/pino.logger';
 import { LoginDto } from './dto';
 import { userRepository } from './user.repository';
 import { User } from './user.types';
-import { BadRequestError, NotFoundError, UnauthorizedError } from '../../errors/http.error';
 
 export const userService = {
   getProfile(id: number) {
