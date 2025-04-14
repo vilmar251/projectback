@@ -3,7 +3,7 @@ import logger from '../../logger/pino.logger';
 import { LoginDto } from './dto';
 import { userRepository } from './user.repository';
 import { User } from './user.types';
-import { NotFoundError, UnauthorizedError } from '../../errors/http.error';
+import { BadRequestError, NotFoundError, UnauthorizedError } from '../../errors/http.error';
 
 export const userService = {
   getProfile(id: number) {
@@ -15,9 +15,17 @@ export const userService = {
   },
   create(user: Omit<User, 'id'>) {
     logger.info('Создание нового пользователя', { email: user.email });
+
+    // Проверяем существование пользователя с таким email
+    const existingUser = userRepository.findByEmail(user.email);
+    if (existingUser) {
+      logger.error('Попытка регистрации с существующим email', { email: user.email });
+      throw new BadRequestError('Пользователь с таким email уже существует');
+    }
+
     user.password = hashSync(user.password, 4);
     const result = userRepository.save(user);
-    logger.info('Пользователь создан', { email: result.email });
+    logger.info('Пользователь успешно создан', { email: result.email });
     return result;
   },
   async findByEmail(email: string) {
