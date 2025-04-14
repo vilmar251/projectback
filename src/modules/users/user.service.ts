@@ -3,6 +3,7 @@ import logger from '../../logger/pino.logger';
 import { LoginDto } from './dto';
 import { userRepository } from './user.repository';
 import { User } from './user.types';
+import { NotFoundError, UnauthorizedError } from '../../errors/http.error';
 
 export const userService = {
   getProfile(id: number) {
@@ -33,12 +34,12 @@ export const userService = {
     const user = userRepository.findByEmail(dto.email);
     if (!user) {
       logger.error('Пользователь не найден', { email: dto.email });
-      throw Error('User not found');
+      throw new NotFoundError('Пользователь не найден');
     }
 
     if (!compareSync(dto.password, user.password)) {
       logger.error('Неверный пароль', { email: dto.email });
-      throw Error('Incorrect password');
+      throw new UnauthorizedError('Неверный пароль');
     }
 
     logger.info('Авторизация успешна', { email: user.email });
