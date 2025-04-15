@@ -1,23 +1,21 @@
 import { nanoid } from 'nanoid';
 import { Task } from './task.types';
 
-const storage: Task[] = []; // Это сейчас является БАЗОЙ ДАННЫХ
+export default class TaskRepository {
+  private storage: Task[] = [];
 
-export const taskRepository = {
-  save(task: Omit<Task, 'id'>) {
+  save(task: Omit<Task, 'id'>): Task {
     const id = nanoid(3);
-    const createdTask = { ...task, id };
-
-    storage.push(createdTask);
-
+    const createdTask = new Task({ ...task, id });
+    this.storage.push(createdTask);
     return createdTask;
-  },
+  }
 
-  findById(id: string) {
-    return storage.find((task) => task.id === id) ?? null;
-  },
+  findById(id: string): Task | null {
+    return this.storage.find((task) => task.id === id) ?? null;
+  }
 
-  findAll() {
-    return storage;
-  },
-};
+  findAll(): Task[] {
+    return this.storage;
+  }
+}

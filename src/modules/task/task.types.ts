@@ -11,10 +11,18 @@ export enum TaskStatus {
   done = 'done',
 }
 
-export type Task = {
+export class Task {
   id: string;
   title: string;
   description: string;
   importance: TaskImportance;
   status: TaskStatus;
-};
+
+  constructor(data: Partial<Task>) {
+    this.id = data.id || '';
+    this.title = data.title || '';
+    this.description = data.description || '';
+    this.importance = data.importance || TaskImportance.medium;
+    this.status = data.status || TaskStatus.inProgress;
+  }
+}
