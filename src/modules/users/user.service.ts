@@ -5,14 +5,15 @@ import { LoginDto } from './dto';
 import { userRepository } from './user.repository';
 import { User } from './user.types';
 
-export const userService = {
+export class UserService {
   getProfile(id: number) {
     logger.info('Получение профиля пользователя', { id });
     return {
       id: id,
       name: 'example',
     };
-  },
+  }
+
   create(user: Omit<User, 'id'>) {
     logger.info('Создание нового пользователя', { email: user.email });
 
@@ -27,15 +28,18 @@ export const userService = {
     const result = userRepository.save(user);
     logger.info('Пользователь успешно создан', { email: result.email });
     return result;
-  },
+  }
+
   async findByEmail(email: string) {
     logger.info('Поиск пользователя по email', { email });
     return userRepository.findByEmail(email);
-  },
+  }
+
   async verifyPassword(plainPassword: string, hashedPassword: string) {
     logger.info('Проверка пароля пользователя');
     return compareSync(plainPassword, hashedPassword);
-  },
+  }
+
   login(dto: LoginDto) {
     logger.info('Попытка авторизации', { email: dto.email });
 
@@ -52,5 +56,7 @@ export const userService = {
 
     logger.info('Авторизация успешна', { email: user.email });
     return user;
-  },
-};
+  }
+}
+
+export const userService = new UserService();
