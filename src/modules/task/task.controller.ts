@@ -1,27 +1,42 @@
 import express, { Request, Response } from 'express';
 import { validate } from '../../validator';
 import { CreateTaskDto } from './dto';
-import { taskService } from './task.service';
+import TaskRepository from './task.repository';
+import TaskService from './task.service';
 
-const taskController = express.Router();
+export default class TaskController {
+  private router: express.Router;
+  private taskService: TaskService;
 
-taskController.get('/', (req: Request, res: Response) => {
-  const result = taskService.findAll();
+  constructor() {
+    this.router = express.Router();
+    this.taskService = new TaskService(new TaskRepository());
+    this.setupRoutes();
+  }
 
-  res.json(result);
-});
+  private setupRoutes(): void {
+    this.router.get('/', this.findAll.bind(this));
+    this.router.get('/:id', this.findById.bind(this));
+    this.router.post('/', this.create.bind(this));
+  }
 
-taskController.get('/:id', (req: Request, res: Response) => {
-  const result = taskService.findById(req.params.id);
+  private findAll(req: Request, res: Response): void {
+    const result = this.taskService.findAll();
+    res.json(result);
+  }
 
-  res.json(result);
-});
+  private findById(req: Request, res: Response): void {
+    const result = this.taskService.findById(req.params.id);
+    res.json(result);
+  }
 
-taskController.post('/', (req: Request, res: Response) => {
-  const dto = validate(CreateTaskDto, req.body);
-  const result = taskService.create(dto);
+  private create(req: Request, res: Response): void {
+    const dto = validate(CreateTaskDto, req.body);
+    const result = this.taskService.create(dto);
+    res.status(201).json(result);
+  }
 
-  res.json(result);
-});
-
-export default taskController;
+  public getRouter(): express.Router {
+    return this.router;
+  }
+}
