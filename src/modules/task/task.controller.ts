@@ -2,15 +2,11 @@ import { Request, Response } from 'express';
 import { BaseController } from '../../common';
 import { validate } from '../../validator';
 import { CreateTaskDto } from './dto';
-import TaskRepository from './task.repository';
 import TaskService from './task.service';
 
 export default class TaskController extends BaseController {
-  private readonly taskService: TaskService;
-
-  constructor() {
+  constructor(private readonly taskService: TaskService) {
     super();
-    this.taskService = new TaskService(new TaskRepository());
 
     this.initRoutes();
   }
