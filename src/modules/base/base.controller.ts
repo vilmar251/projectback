@@ -1,4 +1,4 @@
-import express, { Router, Request, Response } from 'express';
+import express, { Request, Response, Router } from 'express';
 
 export abstract class BaseController {
   protected router: Router;
@@ -13,7 +13,7 @@ export abstract class BaseController {
   protected addRoute(
     method: 'get' | 'post' | 'put' | 'delete',
     path: string,
-    handler: (req: Request, res: Response) => void | Promise<void>
+    handler: (req: Request, res: Response) => void | Promise<void>,
   ): void {
     this.router[method](path, handler.bind(this));
   }
@@ -21,4 +21,4 @@ export abstract class BaseController {
   public getRouter(): Router {
     return this.router;
   }
-} 
+}

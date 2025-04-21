@@ -1,9 +1,9 @@
 import { Request, Response } from 'express';
 import logger from '../../logger/pino.logger';
 import { validate } from '../../validator';
+import { BaseController } from '../base/base.controller';
 import { LoginDto, RegistrationDto } from './dto';
 import { userService } from './user.service';
-import { BaseController } from '../base/base.controller';
 
 export class UserController extends BaseController {
   constructor() {
@@ -19,8 +19,8 @@ export class UserController extends BaseController {
   }
 
   private register(req: Request, res: Response): void {
-    logger.info('POST /user/register - Регистрация пользователя', { 
-      email: req.body.email 
+    logger.info('POST /user/register - Регистрация пользователя', {
+      email: req.body.email,
     });
     const dto = validate(RegistrationDto, req.body);
     const result = userService.create(dto);
@@ -29,8 +29,8 @@ export class UserController extends BaseController {
   }
 
   private login(req: Request, res: Response): void {
-    logger.info('POST /user/login - Авторизация пользователя', { 
-      email: req.body.email 
+    logger.info('POST /user/login - Авторизация пользователя', {
+      email: req.body.email,
     });
     const dto = validate(LoginDto, req.body);
     const result = userService.login(dto);

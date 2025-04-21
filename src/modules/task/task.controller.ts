@@ -1,9 +1,9 @@
 import { Request, Response } from 'express';
 import { validate } from '../../validator';
+import { BaseController } from '../base/base.controller';
 import { CreateTaskDto } from './dto';
 import TaskRepository from './task.repository';
 import TaskService from './task.service';
-import { BaseController } from '../base/base.controller';
 
 export default class TaskController extends BaseController {
   private readonly taskService: TaskService;

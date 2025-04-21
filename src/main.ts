@@ -1,5 +1,6 @@
 import 'reflect-metadata';
 import express from 'express';
+import expressSession from 'express-session';
 import { logRoutes } from './bootstrap/log-routes';
 import { appConfig } from './config';
 import logger from './logger/pino.logger';
@@ -9,6 +10,15 @@ import TaskController from './modules/task/task.controller';
 import userController from './modules/users/user.controller';
 
 const server = express();
+
+server.use(
+  expressSession({
+    secret: 'my_secret',
+    resave: false,
+    saveUninitialized: false,
+    name: 'session_id',
+  }),
+);
 
 server.use(express.json());
 
