@@ -1,21 +1,23 @@
 import { Request, Response } from 'express';
+import { BaseController } from '../../common';
 import logger from '../../logger/pino.logger';
 import { validate } from '../../validator';
-import { BaseController } from '../base/base.controller';
 import { LoginDto, RegistrationDto } from './dto';
 import { userService } from './user.service';
 
 export class UserController extends BaseController {
   constructor() {
     super();
+
+    this.initRoutes();
   }
 
-  protected setupRoutes(): void {
-    this.addRoute('post', '/register', this.register);
-    this.addRoute('post', '/login', this.login);
-    this.addRoute('get', '/profile', this.getProfile);
-    this.addRoute('put', '/profile', this.updateProfile);
-    this.addRoute('delete', '/profile', this.deleteProfile);
+  initRoutes(): void {
+    this.addRoute({ method: 'post', path: '/register', handler: this.register });
+    this.addRoute({ method: 'post', path: '/login', handler: this.login });
+    this.addRoute({ method: 'get', path: '/profile', handler: this.getProfile });
+    this.addRoute({ method: 'put', path: '/profile', handler: this.updateProfile });
+    this.addRoute({ method: 'delete', path: '/profile', handler: this.deleteProfile });
   }
 
   private register(req: Request, res: Response): void {
@@ -56,4 +58,4 @@ export class UserController extends BaseController {
   }
 }
 
-export default new UserController().getRouter();
+export default new UserController();

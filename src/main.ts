@@ -6,7 +6,7 @@ import { appConfig } from './config';
 import logger from './logger/pino.logger';
 import { LogRequestMiddleware } from './middlewares';
 import { ErrorHandler } from './middlewares/error-handler';
-import TaskController from './modules/task/task.controller';
+import { taskController } from './modules/task/task.module';
 import userController from './modules/users/user.controller';
 
 const server = express();
@@ -24,11 +24,8 @@ server.use(express.json());
 
 server.use(LogRequestMiddleware);
 
-// Инициализация контроллеров
-const taskController = new TaskController();
-
-server.use('/task', taskController.getRouter());
-server.use('/user', userController);
+server.use('/task', taskController.router);
+server.use('/user', userController.router);
 
 server.use(ErrorHandler);
 logRoutes(server);

@@ -1,6 +1,6 @@
 import { Request, Response } from 'express';
+import { BaseController } from '../../common';
 import { validate } from '../../validator';
-import { BaseController } from '../base/base.controller';
 import { CreateTaskDto } from './dto';
 import TaskRepository from './task.repository';
 import TaskService from './task.service';
@@ -11,12 +11,14 @@ export default class TaskController extends BaseController {
   constructor() {
     super();
     this.taskService = new TaskService(new TaskRepository());
+
+    this.initRoutes();
   }
 
-  protected setupRoutes(): void {
-    this.addRoute('get', '/', this.findAll);
-    this.addRoute('get', '/:id', this.findById);
-    this.addRoute('post', '/', this.create);
+  initRoutes(): void {
+    this.addRoute({ method: 'get', path: '/', handler: this.findAll });
+    this.addRoute({ method: 'get', path: '/:id', handler: this.findById });
+    this.addRoute({ method: 'post', path: '/', handler: this.create });
   }
 
   private findAll(req: Request, res: Response): void {
