@@ -1,61 +1,58 @@
-import express, { Request, Response } from 'express';
+import { Request, Response } from 'express';
 import logger from '../../logger/pino.logger';
 import { validate } from '../../validator';
 import { LoginDto, RegistrationDto } from './dto';
 import { userService } from './user.service';
+import { BaseController } from '../base/base.controller';
 
-export class UserController {
-  private router: express.Router;
-
+export class UserController extends BaseController {
   constructor() {
-    this.router = express.Router();
-    this.setupRoutes();
+    super();
   }
 
-  private setupRoutes(): void {
-    // Удаление пользователя
-    this.router.delete('/profile', (req: Request, res: Response) => {
-      res.status(501).json({ message: 'Not Implemented' });
-    });
-
-    // Получение списка пользователей
-    this.router.get('/profile/:id', (req: Request, res: Response) => {
-      const id = Number(req.params.id);
-      const result = userService.getProfile(id);
-      res.json(result);
-    });
-
-    // Логин пользователя
-    this.router.post('/login', (req: Request, res: Response) => {
-      logger.info('Получен запрос на авторизацию', { email: req.body.email });
-      const body = validate(LoginDto, req.body);
-      const result = userService.login(body);
-      logger.info('Пользователь успешно авторизован', { email: result.email });
-      res.json(result);
-    });
-
-    // Регистрация нового пользователя
-    this.router.post('/register', (req: Request, res: Response) => {
-      logger.info('Получен запрос на регистрацию', { email: req.body.email });
-      const body = validate(RegistrationDto, req.body);
-      const result = userService.create(body);
-      logger.info('Пользователь успешно зарегистрирован', { email: result.email });
-      res.json(result);
-    });
-
-    // Обновление данных пользователя
-    this.router.put('/profile', (req: Request, res: Response) => {
-      res.status(501).json({ message: 'Not Implemented' });
-    });
-
-    // Удаление пользователя
-    this.router.delete('/profile', (req: Request, res: Response) => {
-      res.status(501).json({ message: 'Not Implemented' });
-    });
+  protected setupRoutes(): void {
+    this.addRoute('post', '/register', this.register);
+    this.addRoute('post', '/login', this.login);
+    this.addRoute('get', '/profile', this.getProfile);
+    this.addRoute('put', '/profile', this.updateProfile);
+    this.addRoute('delete', '/profile', this.deleteProfile);
   }
 
-  public getRouter(): express.Router {
-    return this.router;
+  private register(req: Request, res: Response): void {
+    logger.info('POST /user/register - Регистрация пользователя', { 
+      email: req.body.email 
+    });
+    const dto = validate(RegistrationDto, req.body);
+    const result = userService.create(dto);
+    logger.info('Пользователь успешно зарегистрирован', { email: result.email });
+    res.json(result);
+  }
+
+  private login(req: Request, res: Response): void {
+    logger.info('POST /user/login - Авторизация пользователя', { 
+      email: req.body.email 
+    });
+    const dto = validate(LoginDto, req.body);
+    const result = userService.login(dto);
+    logger.info('Пользователь успешно авторизован', { email: result.email });
+    res.json(result);
+  }
+
+  private getProfile(req: Request, res: Response): void {
+    const userId = Number(req.session.id);
+    logger.info('GET /user/profile - Получение профиля пользователя', { userId });
+    const result = userService.getProfile(userId);
+    res.json(result);
+  }
+
+  private updateProfile(req: Request, res: Response): void {
+    logger.info('PUT /user/profile - Обновление профиля пользователя');
+    res.status(501).json({ message: 'Not Implemented' });
+  }
+
+  private deleteProfile(req: Request, res: Response): void {
+    logger.info('DELETE /user/profile - Удаление профиля пользователя');
+    res.status(501).json({ message: 'Not Implemented' });
   }
 }
 
