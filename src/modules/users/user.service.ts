@@ -2,10 +2,12 @@ import { compareSync, hashSync } from 'bcrypt';
 import { BadRequestError, NotFoundError, UnauthorizedError } from '../../errors';
 import logger from '../../logger/pino.logger';
 import { LoginDto } from './dto';
-import { userRepository } from './user.repository';
+import { UserRepository } from './user.repository';
 import { User } from './user.types';
 
 export class UserService {
+  constructor(private readonly userRepository: UserRepository) {}
+
   getProfile(id: number) {
     logger.info('Получение профиля пользователя', { id });
     return {
@@ -18,21 +20,21 @@ export class UserService {
     logger.info('Создание нового пользователя', { email: user.email });
 
     // Проверяем существование пользователя с таким email
-    const existingUser = userRepository.findByEmail(user.email);
+    const existingUser = this.userRepository.findByEmail(user.email);
     if (existingUser) {
       logger.error('Попытка регистрации с существующим email', { email: user.email });
       throw new BadRequestError('Пользователь с таким email уже существует');
     }
 
     user.password = hashSync(user.password, 4);
-    const result = userRepository.save(user);
+    const result = this.userRepository.save(user);
     logger.info('Пользователь успешно создан', { email: result.email });
     return result;
   }
 
   async findByEmail(email: string) {
     logger.info('Поиск пользователя по email', { email });
-    return userRepository.findByEmail(email);
+    return this.userRepository.findByEmail(email);
   }
 
   async verifyPassword(plainPassword: string, hashedPassword: string) {
@@ -43,7 +45,7 @@ export class UserService {
   login(dto: LoginDto) {
     logger.info('Попытка авторизации', { email: dto.email });
 
-    const user = userRepository.findByEmail(dto.email);
+    const user = this.userRepository.findByEmail(dto.email);
     if (!user) {
       logger.error('Пользователь не найден', { email: dto.email });
       throw new NotFoundError('Пользователь не найден');
@@ -59,4 +61,5 @@ export class UserService {
   }
 }
 
-export const userService = new UserService();
+// Создал экземпляр сервиса с репозиторием
+export const userService = new UserService(new UserRepository());

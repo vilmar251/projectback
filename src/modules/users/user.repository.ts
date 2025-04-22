@@ -15,5 +15,3 @@ export class UserRepository {
     return this.storage.find((user) => user.email === email) ?? null;
   }
 }
-
-export const userRepository = new UserRepository();
