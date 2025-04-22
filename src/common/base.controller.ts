@@ -1,5 +1,4 @@
 import { Router } from 'express';
-import logger from '../logger/pino.logger';
 import { Route } from './types';
 
 export abstract class BaseController {
@@ -13,8 +12,6 @@ export abstract class BaseController {
       const handlers = [...(route.middlewares ?? []), handler];
 
       this.router[method](route.path, handlers);
-
-      logger.info(`Route registered: ${method.toUpperCase()} ${route.path}`);
     }
   }
 
