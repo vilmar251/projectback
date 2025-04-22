@@ -1,27 +1,47 @@
-import express, { Request, Response } from 'express';
+import { Request, Response } from 'express';
+import { BaseController } from '../../common';
+import { UnauthorizedError } from '../../errors';
 import { validate } from '../../validator';
 import { CreateTaskDto } from './dto';
-import { taskService } from './task.service';
+import TaskService from './task.service';
 
-const taskController = express.Router();
+export default class TaskController extends BaseController {
+  constructor(private readonly taskService: TaskService) {
+    super();
 
-taskController.get('/', (req: Request, res: Response) => {
-  const result = taskService.findAll();
+    this.initRoutes();
+  }
 
-  res.json(result);
-});
+  initRoutes(): void {
+    this.addRoute({ method: 'get', path: '/', handler: this.findAll });
+    this.addRoute({ method: 'get', path: '/:id', handler: this.findById });
+    this.addRoute({ method: 'post', path: '/', handler: this.create });
+  }
 
-taskController.get('/:id', (req: Request, res: Response) => {
-  const result = taskService.findById(req.params.id);
+  private findAll(req: Request, res: Response): void {
+    const result = this.taskService.findAll();
+    res.json(result);
+  }
 
-  res.json(result);
-});
+  private findById(req: Request, res: Response): void {
+    const id = req.params.id;
+    const result = this.taskService.findById(id);
+    res.json(result);
+  }
 
-taskController.post('/', (req: Request, res: Response) => {
-  const dto = validate(CreateTaskDto, req.body);
-  const result = taskService.create(dto);
+  private create(req: Request, res: Response): void {
+    if (!req.session?.userId) {
+      throw new UnauthorizedError('User is not authenticated');
+    }
 
-  res.json(result);
-});
-
-export default taskController;
+    const dto = validate(CreateTaskDto, req.body);
+    const now = new Date();
+    const result = this.taskService.create({
+      ...dto,
+      authorId: req.session.userId,
+      createdAt: now,
+      updatedAt: now,
+    });
+    res.status(201).json(result);
+  }
+}
