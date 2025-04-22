@@ -9,6 +9,12 @@ import { ErrorHandler } from './middlewares/error-handler';
 import { taskController } from './modules/task/task.module';
 import userController from './modules/users/user.controller';
 
+declare module 'express-session' {
+  interface SessionData {
+    userId: string;
+  }
+}
+
 const server = express();
 
 server.use(
@@ -17,6 +23,11 @@ server.use(
     resave: false,
     saveUninitialized: false,
     name: 'session_id',
+    cookie: {
+      secure: false,
+      httpOnly: true,
+      maxAge: 24 * 60 * 60 * 1000,
+    },
   }),
 );
 

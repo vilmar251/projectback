@@ -8,12 +8,14 @@ import { User } from './user.types';
 export class UserService {
   constructor(private readonly userRepository: UserRepository) {}
 
-  getProfile(id: number) {
+  getProfile(id: string): User {
     logger.info('Получение профиля пользователя', { id });
-    return {
-      id: id,
-      name: 'example',
-    };
+    const user = this.userRepository.findById(id);
+    if (!user) {
+      logger.error('Пользователь не найден', { id });
+      throw new NotFoundError('Пользователь не найден');
+    }
+    return user;
   }
 
   create(user: Omit<User, 'id'>) {

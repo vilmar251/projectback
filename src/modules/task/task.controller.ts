@@ -1,5 +1,6 @@
 import { Request, Response } from 'express';
 import { BaseController } from '../../common';
+import { UnauthorizedError } from '../../errors';
 import { validate } from '../../validator';
 import { CreateTaskDto } from './dto';
 import TaskService from './task.service';
@@ -29,8 +30,18 @@ export default class TaskController extends BaseController {
   }
 
   private create(req: Request, res: Response): void {
+    if (!req.session?.userId) {
+      throw new UnauthorizedError('User is not authenticated');
+    }
+
     const dto = validate(CreateTaskDto, req.body);
-    const result = this.taskService.create(dto);
+    const now = new Date();
+    const result = this.taskService.create({
+      ...dto,
+      authorId: req.session.userId,
+      createdAt: now,
+      updatedAt: now,
+    });
     res.status(201).json(result);
   }
 }

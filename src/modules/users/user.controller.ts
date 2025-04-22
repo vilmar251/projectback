@@ -1,5 +1,6 @@
 import { Request, Response } from 'express';
 import { BaseController } from '../../common';
+import { UnauthorizedError } from '../../errors';
 import logger from '../../logger/pino.logger';
 import { validate } from '../../validator';
 import { LoginDto, RegistrationDto } from './dto';
@@ -28,13 +29,18 @@ export class UserController extends BaseController {
   private login = (req: Request, res: Response): void => {
     const dto = validate(LoginDto, req.body);
     const result = userService.login(dto);
+
+    req.session.userId = result.id;
+
     logger.info('Пользователь успешно авторизован', { email: result.email });
     res.json(result);
   };
 
   private getProfile = (req: Request, res: Response): void => {
-    const userId = Number(req.session.id);
-    const result = userService.getProfile(userId);
+    if (!req.session?.userId) {
+      throw new UnauthorizedError('User is not authenticated');
+    }
+    const result = userService.getProfile(req.session.userId);
     res.json(result);
   };
 }
