@@ -6,7 +6,7 @@ export default class TaskRepository {
 
   save(task: Omit<Task, 'id'>): Task {
     const id = nanoid(3);
-    const createdTask = new Task({ ...task, id });
+    const createdTask = { ...task, id };
     this.storage.push(createdTask);
     return createdTask;
   }
