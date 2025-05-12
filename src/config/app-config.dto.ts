@@ -12,4 +12,13 @@ export class AppConfigDto {
   @IsNumber()
   @Type(() => Number)
   postgresqlPort: number;
+
+  @IsString()
+  postgresqlUser: string;
+
+  @IsString()
+  postgresqlPassword: string;
+
+  @IsString()
+  postgresqlDatabase: string;
 }
