@@ -3,12 +3,12 @@ import express from 'express';
 import expressSession from 'express-session';
 import { logRoutes } from './bootstrap/log-routes';
 import { appConfig } from './config';
+import { connect } from './database/connect';
 import logger from './logger/pino.logger';
 import { LogRequestMiddleware } from './middlewares';
 import { ErrorHandler } from './middlewares/error-handler';
 import { taskController } from './modules/task/task.module';
 import userController from './modules/users/user.controller';
-import { connect } from './database/connect';
 
 declare module 'express-session' {
   interface SessionData {
@@ -48,4 +48,5 @@ const bootstrap = async () => {
     logger.info(`Server started on port ${appConfig.port}`);
   });
 };
+
 bootstrap();
