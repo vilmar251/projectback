@@ -1,8 +1,15 @@
 import { Type } from 'class-transformer';
-import { IsNumber } from 'class-validator';
+import { IsNumber, IsString } from 'class-validator';
 
 export class AppConfigDto {
   @IsNumber()
   @Type(() => Number)
   port: number;
+
+  @IsString()
+  postgresqlHost: string;
+
+  @IsNumber()
+  @Type(() => Number)
+  postgresqlPort: number;
 }
