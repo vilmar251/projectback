@@ -3,6 +3,7 @@ import express from 'express';
 import expressSession from 'express-session';
 import { logRoutes } from './bootstrap/log-routes';
 import { appConfig } from './config';
+import { connect } from './database/connect';
 import logger from './logger/pino.logger';
 import { LogRequestMiddleware } from './middlewares';
 import { ErrorHandler } from './middlewares/error-handler';
@@ -14,33 +15,38 @@ declare module 'express-session' {
     userId: string;
   }
 }
+const bootstrap = async () => {
+  const server = express();
 
-const server = express();
+  await connect();
 
-server.use(
-  expressSession({
-    secret: 'my_secret',
-    resave: false,
-    saveUninitialized: false,
-    name: 'session_id',
-    cookie: {
-      secure: false,
-      httpOnly: true,
-      maxAge: 24 * 60 * 60 * 1000,
-    },
-  }),
-);
+  server.use(
+    expressSession({
+      secret: 'my_secret',
+      resave: false,
+      saveUninitialized: false,
+      name: 'session_id',
+      cookie: {
+        secure: false,
+        httpOnly: true,
+        maxAge: 24 * 60 * 60 * 1000,
+      },
+    }),
+  );
 
-server.use(express.json());
+  server.use(express.json());
 
-server.use(LogRequestMiddleware);
+  server.use(LogRequestMiddleware);
 
-server.use('/task', taskController.router);
-server.use('/user', userController.router);
+  server.use('/task', taskController.router);
+  server.use('/user', userController.router);
 
-server.use(ErrorHandler);
-logRoutes(server);
+  server.use(ErrorHandler);
+  logRoutes(server);
 
-server.listen(appConfig.port, () => {
-  logger.info(`Server started on port ${appConfig.port}`);
-});
+  server.listen(appConfig.port, () => {
+    logger.info(`Server started on port ${appConfig.port}`);
+  });
+};
+
+bootstrap();

@@ -1,0 +1,11 @@
+services: # Список сервисов
+  postgres: # Название для первого сервиса
+    container_name: postgres # Имя контейнера, чтоб отличать от других
+    image: postgres:17-alpine # Требуемый образ
+    restart: unless-stopped # Политика перезапуска
+    ports: # Маппинг портов
+      - "5432:5432"
+    environment: # Передача переменных окружения (настройки)
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgrespassword
+      POSTGRES_DB: backend

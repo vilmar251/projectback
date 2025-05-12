@@ -10,6 +10,11 @@ type EnvStructure<T> = {
 
 const rawConfig: EnvStructure<AppConfigDto> = {
   port: process.env.PORT,
+  postgresqlHost: process.env.POSTGRES_HOST,
+  postgresqlPort: process.env.POSTGRES_PORT,
+  postgresqlUser: process.env.POSTGRES_USER,
+  postgresqlPassword: process.env.POSTGRES_PASSWORD,
+  postgresqlDatabase: process.env.POSTGRES_DB,
 };
 
 export const appConfig = validate(AppConfigDto, rawConfig);
