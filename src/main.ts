@@ -50,5 +50,3 @@ const bootstrap = async () => {
   });
 };
 bootstrap();
-
-export const userService = new UserService();
