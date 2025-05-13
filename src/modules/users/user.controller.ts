@@ -19,28 +19,28 @@ export class UserController extends BaseController {
     this.addRoute({ method: 'get', path: '/profile', handler: this.getProfile });
   }
 
-  private register = (req: Request, res: Response): void => {
+  private register = async (req: Request, res: Response): Promise<void> => {
     const dto = validate(RegistrationDto, req.body);
-    const result = userService.create(dto);
+    const result = await userService.create(dto);
     logger.info('Пользователь успешно зарегистрирован', { email: result.email });
     res.status(201).json(result);
   };
 
-  private login = (req: Request, res: Response): void => {
+  private login = async (req: Request, res: Response): Promise<void> => {
     const dto = validate(LoginDto, req.body);
-    const result = userService.login(dto);
+    const result = await userService.login(dto);
 
-    req.session.userId = result.id;
+    req.session.userId = result.id.toString();
 
     logger.info('Пользователь успешно авторизован', { email: result.email });
     res.json(result);
   };
 
-  private getProfile = (req: Request, res: Response): void => {
+  private getProfile = async (req: Request, res: Response): Promise<void> => {
     if (!req.session?.userId) {
       throw new UnauthorizedError('User is not authenticated');
     }
-    const result = userService.getProfile(req.session.userId);
+    const result = await userService.getProfile(Number(req.session.userId));
     res.json(result);
   };
 }
