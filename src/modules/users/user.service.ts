@@ -2,15 +2,13 @@ import { compareSync, hashSync } from 'bcrypt';
 import { BadRequestError, NotFoundError, UnauthorizedError } from '../../errors';
 import logger from '../../logger/pino.logger';
 import { LoginDto } from './dto';
-import { UserRepository } from './user.repository';
+import { UserEntity } from '../../database/entities/user.entity';
 import { User } from './user.types';
 
 export class UserService {
-  constructor(private readonly userRepository: UserRepository) {}
-
-  getProfile(id: string): User {
+  async getProfile(id: number): Promise<UserEntity> {
     logger.info('Получение профиля пользователя', { id });
-    const user = this.userRepository.findById(id);
+    const user = await UserEntity.findByPk(id);
     if (!user) {
       logger.error('Пользователь не найден', { id });
       throw new NotFoundError('Пользователь не найден');
@@ -18,25 +16,22 @@ export class UserService {
     return user;
   }
 
-  create(user: Omit<User, 'id'>) {
+  async create(user: Omit<User, 'id'>) {
     logger.info('Создание нового пользователя', { email: user.email });
-
-    // Проверяем существование пользователя с таким email
-    const existingUser = this.userRepository.findByEmail(user.email);
+    const existingUser = await UserEntity.findOne({ where: { email: user.email } });
     if (existingUser) {
       logger.error('Попытка регистрации с существующим email', { email: user.email });
       throw new BadRequestError('Пользователь с таким email уже существует');
     }
-
     user.password = hashSync(user.password, 4);
-    const result = this.userRepository.save(user);
+    const result = await UserEntity.create(user as any);
     logger.info('Пользователь успешно создан', { email: result.email });
     return result;
   }
 
   async findByEmail(email: string) {
     logger.info('Поиск пользователя по email', { email });
-    return this.userRepository.findByEmail(email);
+    return UserEntity.findOne({ where: { email } });
   }
 
   async verifyPassword(plainPassword: string, hashedPassword: string) {
@@ -44,24 +39,20 @@ export class UserService {
     return compareSync(plainPassword, hashedPassword);
   }
 
-  login(dto: LoginDto) {
+  async login(dto: LoginDto) {
     logger.info('Попытка авторизации', { email: dto.email });
-
-    const user = this.userRepository.findByEmail(dto.email);
+    const user = await UserEntity.findOne({ where: { email: dto.email } });
     if (!user) {
       logger.error('Пользователь не найден', { email: dto.email });
       throw new NotFoundError('Пользователь не найден');
     }
-
     if (!compareSync(dto.password, user.password)) {
       logger.error('Неверный пароль', { email: dto.email });
       throw new UnauthorizedError('Неверный пароль');
     }
-
     logger.info('Авторизация успешна', { email: user.email });
     return user;
   }
 }
 
-// Создал экземпляр сервиса с репозиторием
-export const userService = new UserService(new UserRepository());
+export const userService = new UserService();

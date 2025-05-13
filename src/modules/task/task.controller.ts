@@ -18,30 +18,30 @@ export default class TaskController extends BaseController {
     this.addRoute({ method: 'post', path: '/', handler: this.create });
   }
 
-  private findAll(req: Request, res: Response): void {
-    const result = this.taskService.findAll();
+  private findAll = async (req: Request, res: Response): Promise<void> => {
+    const result = await this.taskService.findAll();
     res.json(result);
-  }
+  };
 
-  private findById(req: Request, res: Response): void {
-    const id = req.params.id;
-    const result = this.taskService.findById(id);
+  private findById = async (req: Request, res: Response): Promise<void> => {
+    const id = Number(req.params.id);
+    const result = await this.taskService.findById(id);
     res.json(result);
-  }
+  };
 
-  private create(req: Request, res: Response): void {
+  private create = async (req: Request, res: Response): Promise<void> => {
     if (!req.session?.userId) {
       throw new UnauthorizedError('User is not authenticated');
     }
 
     const dto = validate(CreateTaskDto, req.body);
     const now = new Date();
-    const result = this.taskService.create({
+    const result = await this.taskService.create({
       ...dto,
-      authorId: req.session.userId,
+      userId: Number(req.session.userId),
       createdAt: now,
       updatedAt: now,
     });
     res.status(201).json(result);
-  }
+  };
 }

@@ -9,6 +9,7 @@ import { LogRequestMiddleware } from './middlewares';
 import { ErrorHandler } from './middlewares/error-handler';
 import { taskController } from './modules/task/task.module';
 import userController from './modules/users/user.controller';
+import { UserService } from './modules/users/user.service';
 
 declare module 'express-session' {
   interface SessionData {
@@ -48,5 +49,4 @@ const bootstrap = async () => {
     logger.info(`Server started on port ${appConfig.port}`);
   });
 };
-
 bootstrap();
