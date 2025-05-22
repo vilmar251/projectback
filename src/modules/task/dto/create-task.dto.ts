@@ -13,10 +13,10 @@ export class CreateTaskDto {
 
   @IsEnum(TaskStatus)
   status: TaskStatus;
-  
+
   @IsEnum(['low', 'medium', 'high'])
   severity: 'low' | 'medium' | 'high';
-  
+
   @IsNumber()
   assigneeId: number;
 }

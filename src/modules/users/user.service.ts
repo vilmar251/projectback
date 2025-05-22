@@ -1,8 +1,8 @@
 import { compareSync, hashSync } from 'bcrypt';
+import { UserEntity } from '../../database/entities/user.entity';
 import { BadRequestError, NotFoundError, UnauthorizedError } from '../../errors';
 import logger from '../../logger/pino.logger';
 import { LoginDto } from './dto';
-import { UserEntity } from '../../database/entities/user.entity';
 import { User } from './user.types';
 
 export class UserService {
@@ -24,7 +24,7 @@ export class UserService {
       throw new BadRequestError('Пользователь с таким email уже существует');
     }
     user.password = hashSync(user.password, 4);
-    const result = await UserEntity.create(user as any);
+    const result = await UserEntity.create(user as Omit<User, 'id'>);
     logger.info('Пользователь успешно создан', { email: result.email });
     return result;
   }

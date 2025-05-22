@@ -1,5 +1,5 @@
-import logger from '../../logger/pino.logger';
 import { TaskEntity } from '../../database/entities/task.entity';
+import logger from '../../logger/pino.logger';
 import { Task } from './task.types';
 
 export default class TaskService {
@@ -19,6 +19,6 @@ export default class TaskService {
 
   async create(task: Omit<Task, 'id'>): Promise<TaskEntity> {
     logger.info(`Создание задачи: ${task.title}`);
-    return TaskEntity.create(task as any);
+    return TaskEntity.create(task as Omit<Task, 'id'>);
   }
 }
