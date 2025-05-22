@@ -48,15 +48,15 @@ export default class TaskController extends BaseController {
     });
     res.status(201).json(result);
   };
-  
+
   private update = async (req: Request, res: Response): Promise<void> => {
     if (!req.session?.userId) {
       throw new UnauthorizedError('Пользователь не аутентифицирован');
     }
-    
+
     const id = Number(req.params.id);
     const dto = validate(UpdateTaskDto, req.body);
-    
+
     // Обновляем задачу
     const result = await this.taskService.update(id, dto);
     res.json(result);

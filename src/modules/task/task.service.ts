@@ -16,9 +16,9 @@ export default class TaskService {
     const offset = (page - 1) * limit;
 
     // Формируем условия поиска, если указан параметр search
-    const whereCondition: any = {};
+    const whereCondition: Record<string | symbol, unknown> = {};
     if (params?.search) {
-      whereCondition[Op.or] = [
+      whereCondition[Op.or as unknown as string] = [
         { title: { [Op.like]: `%${params.search}%` } },
         { description: { [Op.like]: `%${params.search}%` } },
       ];
