@@ -48,5 +48,4 @@ const bootstrap = async () => {
     logger.info(`Server started on port ${appConfig.port}`);
   });
 };
-
 bootstrap();
