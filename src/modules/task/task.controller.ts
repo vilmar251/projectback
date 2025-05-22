@@ -38,7 +38,7 @@ export default class TaskController extends BaseController {
     const now = new Date();
     const result = await this.taskService.create({
       ...dto,
-      userId: Number(req.session.userId),
+      authorId: Number(req.session.userId),
       createdAt: now,
       updatedAt: now,
     });

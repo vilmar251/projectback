@@ -1,4 +1,5 @@
-import { Column, DataType, Model, Table } from 'sequelize-typescript';
+import { BelongsTo, Column, DataType, ForeignKey, Model, Table } from 'sequelize-typescript';
+import { UserEntity } from './user.entity';
 
 @Table({ tableName: 'tasks' })
 export class TaskEntity extends Model {
@@ -18,6 +19,13 @@ export class TaskEntity extends Model {
 
   @Column({ type: DataType.ENUM('low', 'medium', 'high'), allowNull: false })
   public severity: 'low' | 'medium' | 'high';
+
+  @ForeignKey(() => UserEntity)
+  @Column({ type: DataType.INTEGER, allowNull: true })
+  public authorId: number;
+
+  @BelongsTo(() => UserEntity, 'authorId')
+  public author: UserEntity;
 
   @Column({ type: DataType.INTEGER, allowNull: false })
   public assigneeId: number;

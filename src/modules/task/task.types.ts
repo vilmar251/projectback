@@ -15,9 +15,11 @@ export type Task = {
   id: string;
   title: string;
   description: string;
-  userId: number;
+  authorId: number;
   createdAt: Date;
   updatedAt: Date;
   importance: TaskImportance;
   status: TaskStatus;
+  severity: 'low' | 'medium' | 'high';
+  assigneeId: number;
 };

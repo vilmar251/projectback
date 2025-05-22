@@ -1,4 +1,5 @@
-import { Column, DataType, Model, Table } from 'sequelize-typescript';
+import { Column, DataType, HasMany, Model, Table } from 'sequelize-typescript';
+import { TaskEntity } from './task.entity';
 
 @Table({ tableName: 'users' })
 export class UserEntity extends Model {
@@ -15,4 +16,7 @@ export class UserEntity extends Model {
 
   @Column({ type: DataType.STRING, allowNull: false })
   public password: string;
+
+  @HasMany(() => TaskEntity, 'authorId')
+  public tasks: TaskEntity[];
 }
