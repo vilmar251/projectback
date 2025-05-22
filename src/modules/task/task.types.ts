@@ -21,5 +21,5 @@ export type Task = {
   importance: TaskImportance;
   status: TaskStatus;
   severity: 'low' | 'medium' | 'high';
-  assigneeId: number;
+  assigneeId?: number;
 };

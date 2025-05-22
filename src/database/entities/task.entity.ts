@@ -27,8 +27,12 @@ export class TaskEntity extends Model {
   @BelongsTo(() => UserEntity, 'authorId')
   public author: UserEntity;
 
-  @Column({ type: DataType.INTEGER, allowNull: false })
+  @ForeignKey(() => UserEntity)
+  @Column({ type: DataType.INTEGER, allowNull: true })
   public assigneeId: number;
+
+  @BelongsTo(() => UserEntity, 'assigneeId')
+  public assignee: UserEntity;
 
   @Column({ type: DataType.ENUM('low', 'medium', 'high'), allowNull: false })
   public importance: 'low' | 'medium' | 'high';
