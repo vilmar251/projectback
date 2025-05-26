@@ -86,7 +86,7 @@ export default class TaskService {
       }
     }
 
-    return TaskEntity.create(task as Omit<Task, 'id'>);
+    return TaskEntity.create({ ...task });
   }
 
   async update(id: number, updateData: UpdateTaskDto): Promise<TaskEntity> {

@@ -1,25 +1,16 @@
-export enum TaskImportance {
-  low = 'low',
-  medium = 'medium',
-  high = 'high',
-  criticaL = 'critical',
-}
+import { ImportanceEnum, SeverityEnum, StatusEnum } from '../../database/entities/task.entity';
 
-export enum TaskStatus {
-  inProgress = 'in_progress',
-  review = 'review',
-  done = 'done',
-}
+// Используем перечисления из сущности
+export { ImportanceEnum as TaskImportance, StatusEnum as TaskStatus, SeverityEnum };
 
 export type Task = {
   id: string;
   title: string;
   description: string;
   authorId: number;
-  createdAt: Date;
-  updatedAt: Date;
-  importance: TaskImportance;
-  status: TaskStatus;
-  severity: 'low' | 'medium' | 'high';
+  importance: ImportanceEnum;
+  status: StatusEnum;
+  severity: SeverityEnum;
   assigneeId?: number;
+  // Поля createdAt и updatedAt будут добавлены автоматически Sequelize
 };

@@ -20,36 +20,33 @@ export default class TaskController extends BaseController {
     this.addRoute({ method: 'put', path: '/:id', handler: this.update });
   }
 
-  private findAll = async (req: Request, res: Response): Promise<void> => {
+  private async findAll(req: Request, res: Response): Promise<void> {
     // Получаем и валидируем параметры запроса
     const params = validate(FindTasksDto, req.query);
     const result = await this.taskService.findAll(params);
     res.json(result);
-  };
+  }
 
-  private findById = async (req: Request, res: Response): Promise<void> => {
+  private async findById(req: Request, res: Response): Promise<void> {
     const id = Number(req.params.id);
     const result = await this.taskService.findById(id);
     res.json(result);
-  };
+  }
 
-  private create = async (req: Request, res: Response): Promise<void> => {
+  private async create(req: Request, res: Response): Promise<void> {
     if (!req.session?.userId) {
       throw new UnauthorizedError('Пользователь не аутентифицирован');
     }
 
     const dto = validate(CreateTaskDto, req.body);
-    const now = new Date();
     const result = await this.taskService.create({
       ...dto,
-      authorId: Number(req.session.userId),
-      createdAt: now,
-      updatedAt: now,
+      authorId: Number(req.session.userId)
     });
     res.status(201).json(result);
-  };
+  }
 
-  private update = async (req: Request, res: Response): Promise<void> => {
+  private async update(req: Request, res: Response): Promise<void> {
     if (!req.session?.userId) {
       throw new UnauthorizedError('Пользователь не аутентифицирован');
     }
@@ -60,5 +57,5 @@ export default class TaskController extends BaseController {
     // Обновляем задачу
     const result = await this.taskService.update(id, dto);
     res.json(result);
-  };
+  }
 }
