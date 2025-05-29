@@ -14,10 +14,10 @@ export default class TaskController extends BaseController {
   }
 
   initRoutes(): void {
-    this.addRoute({ method: 'get', path: '/', handler: this.findAll });
-    this.addRoute({ method: 'get', path: '/:id', handler: this.findById });
-    this.addRoute({ method: 'post', path: '/', handler: this.create });
-    this.addRoute({ method: 'put', path: '/:id', handler: this.update });
+    this.addRoute({ method: 'get', path: '/', handler: this.findAll.bind(this) });
+    this.addRoute({ method: 'get', path: '/:id', handler: this.findById.bind(this) });
+    this.addRoute({ method: 'post', path: '/', handler: this.create.bind(this) });
+    this.addRoute({ method: 'put', path: '/:id', handler: this.update.bind(this) });
   }
 
   private async findAll(req: Request, res: Response): Promise<void> {
@@ -41,7 +41,7 @@ export default class TaskController extends BaseController {
     const dto = validate(CreateTaskDto, req.body);
     const result = await this.taskService.create({
       ...dto,
-      authorId: Number(req.session.userId)
+      authorId: Number(req.session.userId),
     });
     res.status(201).json(result);
   }

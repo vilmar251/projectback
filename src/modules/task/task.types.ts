@@ -4,7 +4,7 @@ import { ImportanceEnum, SeverityEnum, StatusEnum } from '../../database/entitie
 export { ImportanceEnum as TaskImportance, StatusEnum as TaskStatus, SeverityEnum };
 
 export type Task = {
-  id: string;
+  id: number;
   title: string;
   description: string;
   authorId: number;

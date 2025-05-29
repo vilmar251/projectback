@@ -4,19 +4,19 @@ import { UserEntity } from './user.entity';
 export enum SeverityEnum {
   LOW = 'low',
   MEDIUM = 'medium',
-  HIGH = 'high'
+  HIGH = 'high',
 }
 
 export enum ImportanceEnum {
   LOW = 'low',
   MEDIUM = 'medium',
-  HIGH = 'high'
+  HIGH = 'high',
 }
 
 export enum StatusEnum {
   IN_PROGRESS = 'in_progress',
   REVIEW = 'review',
-  DONE = 'done'
+  DONE = 'done',
 }
 
 @Table({ tableName: 'tasks' })
