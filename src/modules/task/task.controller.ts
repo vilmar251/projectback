@@ -1,5 +1,5 @@
 import { Request, Response } from 'express';
-import { inject, injectable } from 'inversify';
+import { inject } from 'inversify';
 import { controller, httpGet, httpPost, httpPut, request, response } from 'inversify-express-utils';
 import { InversifyController } from '../../common/inversify.controller';
 import { UnauthorizedError } from '../../errors';
@@ -11,13 +11,9 @@ import TaskService from './task.service';
 
 @controller('/task')
 export default class TaskController extends InversifyController {
-  constructor(
-    @inject(TYPES.TaskService) private readonly taskService: TaskService
-  ) {
+  constructor(@inject(TYPES.TaskService) private readonly taskService: TaskService) {
     super();
   }
-
-
 
   @httpGet('/')
   private async findAll(@request() req: Request, @response() res: Response): Promise<void> {

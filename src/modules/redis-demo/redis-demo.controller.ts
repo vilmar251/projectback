@@ -8,9 +8,7 @@ import { TYPES } from '../../types/types';
 
 @controller('/redis-demo')
 export default class RedisDemoController extends InversifyController {
-  constructor(
-    @inject(TYPES.RedisService) private readonly redisService: RedisServiceInterface
-  ) {
+  constructor(@inject(TYPES.RedisService) private readonly redisService: RedisServiceInterface) {
     super();
   }
 
@@ -18,7 +16,7 @@ export default class RedisDemoController extends InversifyController {
   private async setValue(@request() req: Request, @response() res: Response): Promise<void> {
     try {
       const { key, value, expireSeconds } = req.body;
-      
+
       if (!key || !value) {
         res.status(400).json({ error: 'Key and value are required' });
         return;
@@ -26,9 +24,9 @@ export default class RedisDemoController extends InversifyController {
 
       // Преобразуем объекты в JSON-строку перед сохранением
       const valueToStore = typeof value === 'object' ? JSON.stringify(value) : value;
-      
+
       await this.redisService.set(key, valueToStore, expireSeconds);
-      
+
       logger.info(`Set Redis key: ${key} with value: ${value}`);
       res.status(200).json({ success: true, message: `Value set for key: ${key}` });
     } catch (error) {
@@ -41,19 +39,19 @@ export default class RedisDemoController extends InversifyController {
   private async getValue(@request() req: Request, @response() res: Response): Promise<void> {
     try {
       const { key } = req.params;
-      
+
       if (!key) {
         res.status(400).json({ error: 'Key is required' });
         return;
       }
 
       const value = await this.redisService.get(key);
-      
+
       if (value === null) {
         res.status(404).json({ error: `Key not found: ${key}` });
         return;
       }
-      
+
       // Пытаемся распарсить значение как JSON, если это возможно
       let parsedValue = value;
       try {
@@ -64,7 +62,7 @@ export default class RedisDemoController extends InversifyController {
         // Если не удалось распарсить, оставляем как есть
         logger.warn(`Could not parse value as JSON for key: ${key}`);
       }
-      
+
       logger.info(`Retrieved Redis key: ${key}`);
       res.status(200).json({ key, value: parsedValue });
     } catch (error) {
@@ -77,14 +75,14 @@ export default class RedisDemoController extends InversifyController {
   private async keyExists(@request() req: Request, @response() res: Response): Promise<void> {
     try {
       const { key } = req.params;
-      
+
       if (!key) {
         res.status(400).json({ error: 'Key is required' });
         return;
       }
 
       const exists = await this.redisService.exists(key);
-      
+
       logger.info(`Checked if Redis key exists: ${key}, result: ${exists}`);
       res.status(200).json({ key, exists });
     } catch (error) {
@@ -97,14 +95,14 @@ export default class RedisDemoController extends InversifyController {
   private async deleteKey(@request() req: Request, @response() res: Response): Promise<void> {
     try {
       const { key } = req.params;
-      
+
       if (!key) {
         res.status(400).json({ error: 'Key is required' });
         return;
       }
 
       await this.redisService.del(key);
-      
+
       logger.info(`Deleted Redis key: ${key}`);
       res.status(200).json({ success: true, message: `Key deleted: ${key}` });
     } catch (error) {

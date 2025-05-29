@@ -35,11 +35,11 @@ export default class UserService {
 
       logger.info('Пользователь успешно создан', { email: result.email, userId: result.id });
       return result;
-    } catch (error: any) {
+    } catch (error: unknown) {
       logger.error('Ошибка при создании пользователя', {
         email: user.email,
-        error: error.message,
-        stack: error.stack,
+        error: (error as Error).message,
+        stack: (error as Error).stack,
       });
       throw error;
     }
@@ -72,11 +72,11 @@ export default class UserService {
 
       logger.info('Авторизация успешна', { email: user.email, userId: user.id });
       return user;
-    } catch (error: any) {
+    } catch (error: unknown) {
       logger.error('Ошибка при авторизации', {
         email: dto.email,
-        error: error.message,
-        stack: error.stack,
+        error: (error as Error).message,
+        stack: (error as Error).stack,
       });
       throw error;
     }

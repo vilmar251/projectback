@@ -1,9 +1,9 @@
 import { Container } from 'inversify';
-import { TYPES } from './types/types';
 import TaskService from './modules/task/task.service';
 import UserService from './modules/users/user.service';
 import RedisService from './services/redis/redis.service';
 import { RedisServiceInterface } from './services/redis/redis.types';
+import { TYPES } from './types/types';
 
 const container = new Container();
 

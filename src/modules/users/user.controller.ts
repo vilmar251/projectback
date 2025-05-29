@@ -1,9 +1,10 @@
 import { Request, Response } from 'express';
-import { inject, injectable } from 'inversify';
+import { inject } from 'inversify';
 import { controller, httpGet, httpPost, request, response } from 'inversify-express-utils';
 import { InversifyController } from '../../common/inversify.controller';
 import { UnauthorizedError } from '../../errors';
 import logger from '../../logger/pino.logger';
+import { AppError } from '../../types/error.types';
 import { TYPES } from '../../types/types';
 import { validate } from '../../validator';
 import { LoginDto, RegistrationDto } from './dto';
@@ -11,31 +12,28 @@ import UserService from './user.service';
 
 @controller('/user')
 export default class UserController extends InversifyController {
-  constructor(
-    @inject(TYPES.UserService) private readonly userService: UserService
-  ) {
+  constructor(@inject(TYPES.UserService) private readonly userService: UserService) {
     super();
   }
-
-
 
   @httpPost('/register')
   private async register(@request() req: Request, @response() res: Response): Promise<void> {
     try {
       logger.info('Получен запрос на регистрацию', { body: JSON.stringify(req.body) });
-      
+
       const dto = validate(RegistrationDto, req.body);
       logger.info('Данные прошли валидацию', { dto: JSON.stringify(dto) });
-      
+
       const result = await this.userService.create(dto);
       logger.info('Пользователь успешно зарегистрирован', { email: result.email, userId: result.id });
-      
+
       res.status(201).json(result);
-    } catch (error: any) {
+    } catch (error: unknown) {
+      const err = error as AppError;
       logger.error('Ошибка в контроллере при регистрации', {
-        error: error.message,
-        stack: error.stack,
-        body: JSON.stringify(req.body)
+        error: (error as Error).message,
+        stack: (error as Error).stack,
+        body: JSON.stringify(req.body),
       });
       throw error;
     }
@@ -45,22 +43,22 @@ export default class UserController extends InversifyController {
   private async login(@request() req: Request, @response() res: Response): Promise<void> {
     try {
       logger.info('Получен запрос на авторизацию', { body: JSON.stringify(req.body) });
-      
+
       const dto = validate(LoginDto, req.body);
       logger.info('Данные прошли валидацию', { dto: JSON.stringify(dto) });
-      
+
       const result = await this.userService.login(dto);
       logger.info('Успешная авторизация, установка сессии', { userId: result.id });
-      
+
       req.session.userId = result.id.toString();
 
       logger.info('Пользователь успешно авторизован', { email: result.email, userId: result.id });
       res.json(result);
-    } catch (error: any) {
+    } catch (error: unknown) {
       logger.error('Ошибка в контроллере при авторизации', {
-        error: error.message,
-        stack: error.stack,
-        body: JSON.stringify(req.body)
+        error: (error as Error).message,
+        stack: (error as Error).stack,
+        body: JSON.stringify(req.body),
       });
       throw error;
     }
