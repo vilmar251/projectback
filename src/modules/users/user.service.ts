@@ -19,16 +19,30 @@ export default class UserService {
   }
 
   async create(user: Omit<User, 'id'>) {
-    logger.info('Создание нового пользователя', { email: user.email });
-    const existingUser = await UserEntity.findOne({ where: { email: user.email } });
-    if (existingUser) {
-      logger.error('Попытка регистрации с существующим email', { email: user.email });
-      throw new BadRequestError('Пользователь с таким email уже существует');
+    try {
+      logger.info('Создание нового пользователя', { email: user.email, userData: JSON.stringify(user) });
+
+      const existingUser = await UserEntity.findOne({ where: { email: user.email } });
+      if (existingUser) {
+        logger.error('Попытка регистрации с существующим email', { email: user.email });
+        throw new BadRequestError('Пользователь с таким email уже существует');
+      }
+
+      user.password = hashSync(user.password, 4);
+
+      logger.info('Попытка создания пользователя в базе данных', { email: user.email });
+      const result = await UserEntity.create(user as Omit<User, 'id'>);
+
+      logger.info('Пользователь успешно создан', { email: result.email, userId: result.id });
+      return result;
+    } catch (error: any) {
+      logger.error('Ошибка при создании пользователя', {
+        email: user.email,
+        error: error.message,
+        stack: error.stack,
+      });
+      throw error;
     }
-    user.password = hashSync(user.password, 4);
-    const result = await UserEntity.create(user as Omit<User, 'id'>);
-    logger.info('Пользователь успешно создан', { email: result.email });
-    return result;
   }
 
   async findByEmail(email: string) {
@@ -42,17 +56,29 @@ export default class UserService {
   }
 
   async login(dto: LoginDto) {
-    logger.info('Попытка авторизации', { email: dto.email });
-    const user = await UserEntity.findOne({ where: { email: dto.email } });
-    if (!user) {
-      logger.error('Пользователь не найден', { email: dto.email });
-      throw new NotFoundError('Пользователь не найден');
+    try {
+      logger.info('Попытка авторизации', { email: dto.email });
+
+      const user = await UserEntity.findOne({ where: { email: dto.email } });
+      if (!user) {
+        logger.error('Пользователь не найден', { email: dto.email });
+        throw new NotFoundError('Пользователь не найден');
+      }
+
+      if (!compareSync(dto.password, user.password)) {
+        logger.error('Неверный пароль', { email: dto.email });
+        throw new UnauthorizedError('Неверный пароль');
+      }
+
+      logger.info('Авторизация успешна', { email: user.email, userId: user.id });
+      return user;
+    } catch (error: any) {
+      logger.error('Ошибка при авторизации', {
+        email: dto.email,
+        error: error.message,
+        stack: error.stack,
+      });
+      throw error;
     }
-    if (!compareSync(dto.password, user.password)) {
-      logger.error('Неверный пароль', { email: dto.email });
-      throw new UnauthorizedError('Неверный пароль');
-    }
-    logger.info('Авторизация успешна', { email: user.email });
-    return user;
   }
 }

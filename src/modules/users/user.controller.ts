@@ -21,21 +21,49 @@ export default class UserController extends InversifyController {
 
   @httpPost('/register')
   private async register(@request() req: Request, @response() res: Response): Promise<void> {
-    const dto = validate(RegistrationDto, req.body);
-    const result = await this.userService.create(dto);
-    logger.info('Пользователь успешно зарегистрирован', { email: result.email });
-    res.status(201).json(result);
+    try {
+      logger.info('Получен запрос на регистрацию', { body: JSON.stringify(req.body) });
+      
+      const dto = validate(RegistrationDto, req.body);
+      logger.info('Данные прошли валидацию', { dto: JSON.stringify(dto) });
+      
+      const result = await this.userService.create(dto);
+      logger.info('Пользователь успешно зарегистрирован', { email: result.email, userId: result.id });
+      
+      res.status(201).json(result);
+    } catch (error: any) {
+      logger.error('Ошибка в контроллере при регистрации', {
+        error: error.message,
+        stack: error.stack,
+        body: JSON.stringify(req.body)
+      });
+      throw error;
+    }
   }
 
   @httpPost('/login')
   private async login(@request() req: Request, @response() res: Response): Promise<void> {
-    const dto = validate(LoginDto, req.body);
-    const result = await this.userService.login(dto);
+    try {
+      logger.info('Получен запрос на авторизацию', { body: JSON.stringify(req.body) });
+      
+      const dto = validate(LoginDto, req.body);
+      logger.info('Данные прошли валидацию', { dto: JSON.stringify(dto) });
+      
+      const result = await this.userService.login(dto);
+      logger.info('Успешная авторизация, установка сессии', { userId: result.id });
+      
+      req.session.userId = result.id.toString();
 
-    req.session.userId = result.id.toString();
-
-    logger.info('Пользователь успешно авторизован', { email: result.email });
-    res.json(result);
+      logger.info('Пользователь успешно авторизован', { email: result.email, userId: result.id });
+      res.json(result);
+    } catch (error: any) {
+      logger.error('Ошибка в контроллере при авторизации', {
+        error: error.message,
+        stack: error.stack,
+        body: JSON.stringify(req.body)
+      });
+      throw error;
+    }
   }
 
   @httpGet('/profile')

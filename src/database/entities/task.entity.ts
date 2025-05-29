@@ -19,7 +19,11 @@ export enum StatusEnum {
   DONE = 'done',
 }
 
-@Table({ tableName: 'tasks' })
+@Table({
+  tableName: 'tasks',
+  timestamps: false,
+  underscored: true,
+})
 export class TaskEntity extends Model {
   @Column({
     type: DataType.INTEGER,
@@ -58,5 +62,19 @@ export class TaskEntity extends Model {
   @Column({ type: DataType.STRING, allowNull: false })
   public status: StatusEnum;
 
-  // Поля createdAt и updatedAt будут созданы автоматически Sequelize
+  @Column({
+    type: DataType.DATE,
+    allowNull: false,
+    field: 'created_at',
+    defaultValue: DataType.NOW,
+  })
+  public createdAt: Date;
+
+  @Column({
+    type: DataType.DATE,
+    allowNull: false,
+    field: 'updated_at',
+    defaultValue: DataType.NOW,
+  })
+  public updatedAt: Date;
 }

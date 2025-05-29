@@ -1,7 +1,11 @@
 import { Column, DataType, HasMany, Model, Table } from 'sequelize-typescript';
 import { TaskEntity } from './task.entity';
 
-@Table({ tableName: 'users' })
+@Table({
+  tableName: 'users',
+  timestamps: false,
+  underscored: true,
+})
 export class UserEntity extends Model {
   @Column({
     type: DataType.INTEGER,
@@ -19,4 +23,20 @@ export class UserEntity extends Model {
 
   @HasMany(() => TaskEntity, 'authorId')
   public tasks: TaskEntity[];
+
+  @Column({
+    type: DataType.DATE,
+    allowNull: false,
+    field: 'created_at',
+    defaultValue: DataType.NOW,
+  })
+  public createdAt: Date;
+
+  @Column({
+    type: DataType.DATE,
+    allowNull: false,
+    field: 'updated_at',
+    defaultValue: DataType.NOW,
+  })
+  public updatedAt: Date;
 }
