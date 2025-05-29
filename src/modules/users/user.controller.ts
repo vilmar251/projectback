@@ -4,7 +4,6 @@ import { controller, httpGet, httpPost, request, response } from 'inversify-expr
 import { InversifyController } from '../../common/inversify.controller';
 import { UnauthorizedError } from '../../errors';
 import logger from '../../logger/pino.logger';
-import { AppError } from '../../types/error.types';
 import { TYPES } from '../../types/types';
 import { validate } from '../../validator';
 import { LoginDto, RegistrationDto } from './dto';
@@ -29,7 +28,6 @@ export default class UserController extends InversifyController {
 
       res.status(201).json(result);
     } catch (error: unknown) {
-      const err = error as AppError;
       logger.error('Ошибка в контроллере при регистрации', {
         error: (error as Error).message,
         stack: (error as Error).stack,
