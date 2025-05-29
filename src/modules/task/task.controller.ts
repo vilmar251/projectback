@@ -1,39 +1,41 @@
 import { Request, Response } from 'express';
-import { BaseController } from '../../common';
+import { inject, injectable } from 'inversify';
+import { controller, httpGet, httpPost, httpPut, request, response } from 'inversify-express-utils';
+import { InversifyController } from '../../common/inversify.controller';
 import { UnauthorizedError } from '../../errors';
+import { TYPES } from '../../types/types';
 import { validate } from '../../validator';
 import { CreateTaskDto, UpdateTaskDto } from './dto';
 import { FindTasksDto } from './dto/find-tasks.dto';
 import TaskService from './task.service';
 
-export default class TaskController extends BaseController {
-  constructor(private readonly taskService: TaskService) {
+@controller('/task')
+export default class TaskController extends InversifyController {
+  constructor(
+    @inject(TYPES.TaskService) private readonly taskService: TaskService
+  ) {
     super();
-
-    this.initRoutes();
   }
 
-  initRoutes(): void {
-    this.addRoute({ method: 'get', path: '/', handler: this.findAll.bind(this) });
-    this.addRoute({ method: 'get', path: '/:id', handler: this.findById.bind(this) });
-    this.addRoute({ method: 'post', path: '/', handler: this.create.bind(this) });
-    this.addRoute({ method: 'put', path: '/:id', handler: this.update.bind(this) });
-  }
 
-  private async findAll(req: Request, res: Response): Promise<void> {
+
+  @httpGet('/')
+  private async findAll(@request() req: Request, @response() res: Response): Promise<void> {
     // Получаем и валидируем параметры запроса
     const params = validate(FindTasksDto, req.query);
     const result = await this.taskService.findAll(params);
     res.json(result);
   }
 
-  private async findById(req: Request, res: Response): Promise<void> {
+  @httpGet('/:id')
+  private async findById(@request() req: Request, @response() res: Response): Promise<void> {
     const id = Number(req.params.id);
     const result = await this.taskService.findById(id);
     res.json(result);
   }
 
-  private async create(req: Request, res: Response): Promise<void> {
+  @httpPost('/')
+  private async create(@request() req: Request, @response() res: Response): Promise<void> {
     if (!req.session?.userId) {
       throw new UnauthorizedError('Пользователь не аутентифицирован');
     }
@@ -46,7 +48,8 @@ export default class TaskController extends BaseController {
     res.status(201).json(result);
   }
 
-  private async update(req: Request, res: Response): Promise<void> {
+  @httpPut('/:id')
+  private async update(@request() req: Request, @response() res: Response): Promise<void> {
     if (!req.session?.userId) {
       throw new UnauthorizedError('Пользователь не аутентифицирован');
     }

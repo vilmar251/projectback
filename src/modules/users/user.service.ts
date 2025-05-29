@@ -1,11 +1,13 @@
 import { compareSync, hashSync } from 'bcrypt';
+import { injectable } from 'inversify';
 import { UserEntity } from '../../database/entities/user.entity';
 import { BadRequestError, NotFoundError, UnauthorizedError } from '../../errors';
 import logger from '../../logger/pino.logger';
 import { LoginDto } from './dto';
 import { User } from './user.types';
 
-export class UserService {
+@injectable()
+export default class UserService {
   async getProfile(id: number): Promise<UserEntity> {
     logger.info('Получение профиля пользователя', { id });
     const user = await UserEntity.findByPk(id);
@@ -54,5 +56,3 @@ export class UserService {
     return user;
   }
 }
-
-export const userService = new UserService();

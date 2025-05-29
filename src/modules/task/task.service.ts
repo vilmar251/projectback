@@ -1,3 +1,4 @@
+import { injectable } from 'inversify';
 import { Op } from 'sequelize';
 import { TaskEntity } from '../../database/entities/task.entity';
 import { UserEntity } from '../../database/entities/user.entity';
@@ -7,6 +8,7 @@ import { FindTasksDto } from './dto/find-tasks.dto';
 import { UpdateTaskDto } from './dto/update-task.dto';
 import { Task } from './task.types';
 
+@injectable()
 export default class TaskService {
   async findAll(params?: FindTasksDto): Promise<{ tasks: TaskEntity[]; total: number; page: number; limit: number }> {
     logger.info('Чтение списка задач с параметрами:', params);

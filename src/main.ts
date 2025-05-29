@@ -1,14 +1,16 @@
 import 'reflect-metadata';
+import './modules/task/task.controller';
+import './modules/users/user.controller';
 import express from 'express';
 import expressSession from 'express-session';
+import { InversifyExpressServer } from 'inversify-express-utils';
 import { logRoutes } from './bootstrap/log-routes';
 import { appConfig } from './config';
 import { connect } from './database/connect';
+import { container } from './inversify.config';
 import logger from './logger/pino.logger';
 import { LogRequestMiddleware } from './middlewares';
 import { ErrorHandler } from './middlewares/error-handler';
-import { taskController } from './modules/task/task.module';
-import userController from './modules/users/user.controller';
 
 declare module 'express-session' {
   interface SessionData {
@@ -16,35 +18,40 @@ declare module 'express-session' {
   }
 }
 const bootstrap = async () => {
-  const server = express();
-
   await connect();
 
-  server.use(
-    expressSession({
-      secret: 'my_secret',
-      resave: false,
-      saveUninitialized: false,
-      name: 'session_id',
-      cookie: {
-        secure: false,
-        httpOnly: true,
-        maxAge: 24 * 60 * 60 * 1000,
-      },
-    }),
-  );
+  // Создаем сервер Inversify
+  const server = new InversifyExpressServer(container);
 
-  server.use(express.json());
+  // Настраиваем сервер
+  server.setConfig((app) => {
+    app.use(
+      expressSession({
+        secret: 'my_secret',
+        resave: false,
+        saveUninitialized: false,
+        name: 'session_id',
+        cookie: {
+          secure: false,
+          httpOnly: true,
+          maxAge: 24 * 60 * 60 * 1000,
+        },
+      }),
+    );
 
-  server.use(LogRequestMiddleware);
+    app.use(express.json());
+    app.use(LogRequestMiddleware);
+  });
 
-  server.use('/task', taskController.router);
-  server.use('/user', userController.router);
+  server.setErrorConfig((app) => {
+    app.use(ErrorHandler);
+  });
 
-  server.use(ErrorHandler);
-  logRoutes(server);
+  const app = server.build();
 
-  server.listen(appConfig.port, () => {
+  logRoutes(app);
+
+  app.listen(appConfig.port, () => {
     logger.info(`Server started on port ${appConfig.port}`);
   });
 };
