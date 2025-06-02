@@ -4,4 +4,5 @@ export interface RedisServiceInterface {
   del(key: string): Promise<void>;
   exists(key: string): Promise<boolean>;
   flushDb(): Promise<void>;
+  keys(pattern: string): Promise<string[]>;
 }

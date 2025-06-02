@@ -3,7 +3,6 @@ import './modules/task/task.controller';
 import './modules/users/user.controller';
 import './modules/redis-demo/redis-demo.controller';
 import express from 'express';
-import expressSession from 'express-session';
 import { InversifyExpressServer } from 'inversify-express-utils';
 import { logRoutes } from './bootstrap/log-routes';
 import { appConfig } from './config';
@@ -14,11 +13,7 @@ import { LogRequestMiddleware } from './middlewares';
 import { errorHandler } from './middlewares/error-handler';
 import { connectRedis } from './services/redis/redis.connect';
 
-declare module 'express-session' {
-  interface SessionData {
-    userId: string;
-  }
-}
+
 const bootstrap = async () => {
   await connect();
 
@@ -29,20 +24,6 @@ const bootstrap = async () => {
 
   // Настраиваем сервер
   server.setConfig((app) => {
-    app.use(
-      expressSession({
-        secret: 'my_secret',
-        resave: false,
-        saveUninitialized: false,
-        name: 'session_id',
-        cookie: {
-          secure: false,
-          httpOnly: true,
-          maxAge: 24 * 60 * 60 * 1000,
-        },
-      }),
-    );
-
     app.use(express.json());
     app.use(LogRequestMiddleware);
   });

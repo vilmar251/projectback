@@ -20,6 +20,8 @@ const rawConfig: EnvStructure<AppConfigDto> = {
   redisPort: process.env.REDIS_PORT,
   redisPassword: process.env.REDIS_PASSWORD,
   redisDb: process.env.REDIS_DB,
+  
+  jwtSecret: process.env.JWT_SECRET,
 };
 
 export const appConfig = validate(AppConfigDto, rawConfig);

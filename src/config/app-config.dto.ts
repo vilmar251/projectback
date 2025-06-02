@@ -36,4 +36,7 @@ export class AppConfigDto {
   @IsNumber()
   @Type(() => Number)
   redisDb: number;
+
+  @IsString()
+  jwtSecret: string;
 }

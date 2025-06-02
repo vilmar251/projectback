@@ -1,0 +1,48 @@
+### Регистрация пользователя
+POST http://localhost:2000/user/register
+Content-Type: application/json
+
+{
+  "email": "test@example.com",
+  "password": "password123",
+  "name": "Test User"
+}
+
+### Авторизация пользователя (получение JWT токена)
+POST http://localhost:2000/user/login
+Content-Type: application/json
+
+{
+  "email": "test@example.com",
+  "password": "password123"
+}
+
+### Получение профиля пользователя (с JWT токеном)
+GET http://localhost:2000/user/profile
+Authorization: Bearer YOUR_JWT_TOKEN_HERE
+
+### Создание задачи (с JWT токеном)
+POST http://localhost:2000/task
+Authorization: Bearer YOUR_JWT_TOKEN_HERE
+Content-Type: application/json
+
+{
+  "title": "Тестовая задача",
+  "description": "Описание тестовой задачи",
+  "assigneeId": 1
+}
+
+### Обновление задачи (с JWT токеном)
+PUT http://localhost:2000/task/1
+Authorization: Bearer YOUR_JWT_TOKEN_HERE
+Content-Type: application/json
+
+{
+  "title": "Обновленная задача",
+  "description": "Обновленное описание задачи",
+  "assigneeId": 1
+}
+
+### Удаление задачи (с JWT токеном)
+DELETE http://localhost:2000/task/1
+Authorization: Bearer YOUR_JWT_TOKEN_HERE

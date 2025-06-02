@@ -1,6 +1,7 @@
 import { Request, Response } from 'express';
 import { inject } from 'inversify';
 import { controller, httpGet, httpPost, request, response } from 'inversify-express-utils';
+import { jwtAuthMiddleware } from '../../middleware/jwt-auth.middleware';
 import { InversifyController } from '../../common/inversify.controller';
 import { UnauthorizedError } from '../../errors';
 import logger from '../../logger/pino.logger';
@@ -46,11 +47,9 @@ export default class UserController extends InversifyController {
       logger.info('Данные прошли валидацию', { dto: JSON.stringify(dto) });
 
       const result = await this.userService.login(dto);
-      logger.info('Успешная авторизация, установка сессии', { userId: result.id });
+      logger.info('Успешная авторизация, токен сгенерирован', { userId: result.user.id });
 
-      req.session.userId = result.id.toString();
-
-      logger.info('Пользователь успешно авторизован', { email: result.email, userId: result.id });
+      logger.info('Пользователь успешно авторизован', { email: result.user.email, userId: result.user.id });
       res.json(result);
     } catch (error: unknown) {
       logger.error('Ошибка в контроллере при авторизации', {
@@ -62,12 +61,9 @@ export default class UserController extends InversifyController {
     }
   }
 
-  @httpGet('/profile')
+  @httpGet('/profile', jwtAuthMiddleware())
   private async getProfile(@request() req: Request, @response() res: Response): Promise<void> {
-    if (!req.session?.userId) {
-      throw new UnauthorizedError('User is not authenticated');
-    }
-    const result = await this.userService.getProfile(Number(req.session.userId));
+    const result = await this.userService.getProfile(Number(req.userId));
     res.json(result);
   }
 }

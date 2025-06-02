@@ -1,13 +1,18 @@
 import { compareSync, hashSync } from 'bcrypt';
-import { injectable } from 'inversify';
+import { inject, injectable } from 'inversify';
 import { UserEntity } from '../../database/entities/user.entity';
 import { BadRequestError, NotFoundError, UnauthorizedError } from '../../errors';
 import logger from '../../logger/pino.logger';
+import { TYPES } from '../../types/types';
+import { JwtServiceInterface } from '../../services/jwt/jwt.types';
 import { LoginDto } from './dto';
 import { User } from './user.types';
 
 @injectable()
 export default class UserService {
+  constructor(
+    @inject(TYPES.JwtService) private readonly jwtService: JwtServiceInterface
+  ) {}
   async getProfile(id: number): Promise<UserEntity> {
     logger.info('Получение профиля пользователя', { id });
     const user = await UserEntity.findByPk(id);
@@ -70,8 +75,14 @@ export default class UserService {
         throw new UnauthorizedError('Неверный пароль');
       }
 
-      logger.info('Авторизация успешна', { email: user.email, userId: user.id });
-      return user;
+      // Генерируем JWT токен
+      const token = this.jwtService.generateToken({ userId: user.id });
+
+      logger.info('Авторизация успешна, токен сгенерирован', { email: user.email, userId: user.id });
+      return {
+        user,
+        token
+      };
     } catch (error: unknown) {
       logger.error('Ошибка при авторизации', {
         email: dto.email,

@@ -74,4 +74,13 @@ export default class RedisService implements RedisServiceInterface {
       throw error;
     }
   }
+
+  async keys(pattern: string): Promise<string[]> {
+    try {
+      return await this.client.keys(pattern);
+    } catch (error) {
+      logger.error(`Error getting keys with pattern ${pattern} from Redis:`, error);
+      throw error;
+    }
+  }
 }

@@ -1,6 +1,7 @@
 import { Request, Response } from 'express';
 import { inject } from 'inversify';
-import { controller, httpGet, httpPost, httpPut, request, response } from 'inversify-express-utils';
+import { controller, httpDelete, httpGet, httpPost, httpPut, request, response } from 'inversify-express-utils';
+import { jwtAuthMiddleware } from '../../middleware/jwt-auth.middleware';
 import { InversifyController } from '../../common/inversify.controller';
 import { UnauthorizedError } from '../../errors';
 import { TYPES } from '../../types/types';
@@ -30,31 +31,32 @@ export default class TaskController extends InversifyController {
     res.json(result);
   }
 
-  @httpPost('/')
+  @httpPost('/', jwtAuthMiddleware())
   private async create(@request() req: Request, @response() res: Response): Promise<void> {
-    if (!req.session?.userId) {
-      throw new UnauthorizedError('Пользователь не аутентифицирован');
-    }
-
     const dto = validate(CreateTaskDto, req.body);
     const result = await this.taskService.create({
       ...dto,
-      authorId: Number(req.session.userId),
+      authorId: Number(req.userId),
     });
     res.status(201).json(result);
   }
 
-  @httpPut('/:id')
+  @httpPut('/:id', jwtAuthMiddleware())
   private async update(@request() req: Request, @response() res: Response): Promise<void> {
-    if (!req.session?.userId) {
-      throw new UnauthorizedError('Пользователь не аутентифицирован');
-    }
-
     const id = Number(req.params.id);
     const dto = validate(UpdateTaskDto, req.body);
 
     // Обновляем задачу
     const result = await this.taskService.update(id, dto);
     res.json(result);
+  }
+
+  @httpDelete('/:id', jwtAuthMiddleware())
+  private async delete(@request() req: Request, @response() res: Response): Promise<void> {
+    const id = Number(req.params.id);
+    
+    // Удаляем задачу
+    await this.taskService.delete(id);
+    res.status(204).send();
   }
 }
