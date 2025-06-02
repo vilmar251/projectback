@@ -6,7 +6,7 @@ import logger from '../../logger/pino.logger';
 import { JwtServiceInterface } from '../../services/jwt/jwt.types';
 import { TYPES } from '../../types/types';
 import { LoginDto } from './dto';
-import { TokenPair, User } from './user.types';
+import { TokenPair } from './user.types';
 
 @injectable()
 export default class UserService {
