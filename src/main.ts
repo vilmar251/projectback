@@ -13,7 +13,6 @@ import { LogRequestMiddleware } from './middlewares';
 import { errorHandler } from './middlewares/error-handler';
 import { connectRedis } from './services/redis/redis.connect';
 
-
 const bootstrap = async () => {
   await connect();
 

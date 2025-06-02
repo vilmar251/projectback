@@ -18,7 +18,7 @@ export default class JwtService implements JwtServiceInterface {
   private readonly ACCESS_TOKEN_TTL = '24h';
 
   constructor(@inject(TYPES.RedisService) private redisService: RedisServiceInterface) {}
-  generateToken(payload: Record<string, any>): string {
+  generateToken(payload: Record<string, string | number | boolean>): string {
     try {
       return jwt.sign(payload, appConfig.jwtSecret, { expiresIn: this.ACCESS_TOKEN_TTL });
     } catch (error) {
@@ -101,9 +101,9 @@ export default class JwtService implements JwtServiceInterface {
     }
   }
 
-  verifyToken(token: string): Record<string, any> | null {
+  verifyToken(token: string): Record<string, string | number | boolean> | null {
     try {
-      return jwt.verify(token, appConfig.jwtSecret) as Record<string, any>;
+      return jwt.verify(token, appConfig.jwtSecret) as Record<string, string | number | boolean>;
     } catch (error) {
       logger.error('Error verifying JWT token:', error);
       return null;

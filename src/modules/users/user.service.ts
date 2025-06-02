@@ -21,7 +21,7 @@ export default class UserService {
     return user;
   }
 
-  async create(userData: Omit<User, 'id'> | any) {
+  async create(userData: Omit<User, 'id'> & { role?: UserRole }) {
     try {
       logger.info('Создание нового пользователя', { email: userData.email, userData: JSON.stringify(userData) });
 
@@ -54,7 +54,9 @@ export default class UserService {
 
   async findByEmail(email: string) {
     logger.info('Поиск пользователя по email', { email });
-    return UserEntity.findOne({ where: { email } });
+    const user = await UserEntity.findOne({ where: { email } });
+    logger.info('Результат поиска пользователя', { found: !!user, user: user ? JSON.stringify(user) : 'null' });
+    return user;
   }
 
   async verifyPassword(plainPassword: string, hashedPassword: string) {
@@ -127,7 +129,7 @@ export default class UserService {
   async getAllUsers(): Promise<UserEntity[]> {
     try {
       logger.info('Получение списка всех пользователей');
-      const users = await UserEntity.findAll();
+      const users: UserEntity[] = await UserEntity.findAll();
       logger.info(`Получено ${users.length} пользователей`);
       return users;
     } catch (error: unknown) {

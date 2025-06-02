@@ -1,9 +1,8 @@
 import { Request, Response } from 'express';
 import { inject } from 'inversify';
 import { controller, httpDelete, httpGet, httpPost, httpPut, request, response } from 'inversify-express-utils';
-import { jwtAuthMiddleware } from '../../middleware/jwt-auth.middleware';
 import { InversifyController } from '../../common/inversify.controller';
-import { UnauthorizedError } from '../../errors';
+import { jwtAuthMiddleware } from '../../middleware/jwt-auth.middleware';
 import { TYPES } from '../../types/types';
 import { validate } from '../../validator';
 import { CreateTaskDto, UpdateTaskDto } from './dto';
@@ -54,7 +53,7 @@ export default class TaskController extends InversifyController {
   @httpDelete('/:id', jwtAuthMiddleware())
   private async delete(@request() req: Request, @response() res: Response): Promise<void> {
     const id = Number(req.params.id);
-    
+
     // Удаляем задачу
     await this.taskService.delete(id);
     res.status(204).send();

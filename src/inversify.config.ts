@@ -1,10 +1,10 @@
 import { Container } from 'inversify';
 import TaskService from './modules/task/task.service';
 import UserService from './modules/users/user.service';
-import RedisService from './services/redis/redis.service';
-import { RedisServiceInterface } from './services/redis/redis.types';
 import JwtService from './services/jwt/jwt.service';
 import { JwtServiceInterface } from './services/jwt/jwt.types';
+import RedisService from './services/redis/redis.service';
+import { RedisServiceInterface } from './services/redis/redis.types';
 import { TYPES } from './types/types';
 
 const container = new Container();

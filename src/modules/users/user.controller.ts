@@ -169,4 +169,41 @@ export default class UserController extends InversifyController {
       throw error;
     }
   }
+
+  @httpGet('/users', jwtAuthMiddleware(), roleAuthMiddleware(['admin']))
+  private async getAllUsers(@request() req: Request, @response() res: Response): Promise<void> {
+    try {
+      logger.info('Получен запрос на получение списка всех пользователей', { userId: req.userId, role: req.userRole });
+
+      const users = await this.userService.getAllUsers();
+
+      logger.info(`Список пользователей успешно получен, количество: ${users.length}`, {
+        userId: req.userId,
+        role: req.userRole,
+      });
+
+      // Формируем ответ с безопасными данными пользователей (без паролей)
+      const safeUsers = users.map((user) => ({
+        id: user.id,
+        email: user.email,
+        role: user.role,
+        createdAt: user.createdAt,
+        updatedAt: user.updatedAt,
+      }));
+
+      res.json({
+        success: true,
+        total: users.length,
+        users: safeUsers,
+      });
+    } catch (error: unknown) {
+      logger.error('Ошибка при получении списка пользователей', {
+        userId: req.userId,
+        role: req.userRole,
+        error: (error as Error).message,
+        stack: (error as Error).stack,
+      });
+      throw error;
+    }
+  }
 }

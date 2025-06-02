@@ -18,7 +18,7 @@ export const connect = async () => {
     });
 
     await connection.authenticate();
-    await connection.sync({ alter: false });
+    await connection.sync({ alter: true });
     logger.info('Successfully connected to the database');
   } catch (error) {
     logger.error('Failed to connect to the database:', error);

@@ -5,7 +5,9 @@ import logger from '../logger/pino.logger';
 import { JwtServiceInterface } from '../services/jwt/jwt.types';
 import { TYPES } from '../types/types';
 
+// Расширяем типы Request
 declare global {
+  // eslint-disable-next-line @typescript-eslint/no-namespace
   namespace Express {
     interface Request {
       userId?: number;
@@ -15,7 +17,7 @@ declare global {
 }
 
 export const jwtAuthMiddleware = () => {
-  return (req: Request, res: Response, next: NextFunction) => {
+  return (req: Request, res: Response, next: NextFunction): void => {
     logger.info(`JWT Auth Middleware: Проверка запроса ${req.method} ${req.path}`);
     const authHeader = req.headers.authorization;
     const jwtService = container.get<JwtServiceInterface>(TYPES.JwtService);
@@ -50,7 +52,7 @@ export const jwtAuthMiddleware = () => {
       req.userRole = userRole || 'user'; // По умолчанию роль 'user', если не указана
       logger.info(`JWT Auth Middleware: Аутентификация успешна, userId=${userId}, role=${req.userRole}`);
 
-      next();
+      return next();
     } catch (error) {
       logger.error(
         `JWT Auth Middleware: Ошибка при проверке токена: ${error instanceof Error ? error.message : 'Неизвестная ошибка'}`,

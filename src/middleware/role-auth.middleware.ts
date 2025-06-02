@@ -3,7 +3,7 @@ import { ForbiddenError } from '../errors';
 import logger from '../logger/pino.logger';
 
 export const roleAuthMiddleware = (roles: string[]) => {
-  return (req: Request, res: Response, next: NextFunction) => {
+  return (req: Request, res: Response, next: NextFunction): void => {
     logger.info(`Role Auth Middleware: Проверка доступа для роли ${req.userRole}`);
 
     if (!req.userId || !req.userRole) {
@@ -19,6 +19,6 @@ export const roleAuthMiddleware = (roles: string[]) => {
     }
 
     logger.info(`Role Auth Middleware: Доступ разрешен для пользователя с ролью ${req.userRole}`);
-    next();
+    return next();
   };
 };
