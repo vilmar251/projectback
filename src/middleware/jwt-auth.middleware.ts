@@ -1,20 +1,19 @@
 import { NextFunction, Request, Response } from 'express';
-import { container } from '../inversify.config';
 import { UnauthorizedError } from '../errors';
-import { TYPES } from '../types/types';
-import { JwtServiceInterface } from '../services/jwt/jwt.types';
+import { container } from '../inversify.config';
 import logger from '../logger/pino.logger';
+import { JwtServiceInterface } from '../services/jwt/jwt.types';
+import { TYPES } from '../types/types';
 
-// Расширяем интерфейс Request для добавления userId
 declare global {
   namespace Express {
     interface Request {
       userId?: number;
+      userRole?: string;
     }
   }
 }
 
-// Создаем функцию-фабрику для JWT middleware
 export const jwtAuthMiddleware = () => {
   return (req: Request, res: Response, next: NextFunction) => {
     logger.info(`JWT Auth Middleware: Проверка запроса ${req.method} ${req.path}`);
@@ -26,7 +25,7 @@ export const jwtAuthMiddleware = () => {
       logger.info(`JWT Auth Middleware: Authorization header value: ${authHeader}`);
       logger.info(`JWT Auth Middleware: Starts with 'Bearer ': ${authHeader.startsWith('Bearer ')}`);
     }
-    
+
     if (!authHeader || !authHeader.startsWith('Bearer ')) {
       logger.warn('Отсутствует или неверный формат токена авторизации');
       return next(new UnauthorizedError('Требуется авторизация'));
@@ -34,7 +33,7 @@ export const jwtAuthMiddleware = () => {
 
     const token = authHeader.split(' ')[1];
     logger.info(`JWT Auth Middleware: Токен получен, пытаемся извлечь userId`);
-    
+
     try {
       const userId = jwtService.extractUserIdFromToken(token);
       logger.info(`JWT Auth Middleware: Извлечен userId: ${userId}`);
@@ -44,13 +43,18 @@ export const jwtAuthMiddleware = () => {
         return next(new UnauthorizedError('Недействительный токен авторизации'));
       }
 
-      // Добавляем userId в объект запроса для дальнейшего использования
+      const userRole = jwtService.extractRoleFromToken(token);
+      logger.info(`JWT Auth Middleware: Извлечена роль пользователя: ${userRole || 'не указана'}`);
+
       req.userId = userId;
-      logger.info(`JWT Auth Middleware: Аутентификация успешна, userId=${userId}`);
-      
+      req.userRole = userRole || 'user'; // По умолчанию роль 'user', если не указана
+      logger.info(`JWT Auth Middleware: Аутентификация успешна, userId=${userId}, role=${req.userRole}`);
+
       next();
     } catch (error) {
-      logger.error(`JWT Auth Middleware: Ошибка при проверке токена: ${error instanceof Error ? error.message : 'Неизвестная ошибка'}`);
+      logger.error(
+        `JWT Auth Middleware: Ошибка при проверке токена: ${error instanceof Error ? error.message : 'Неизвестная ошибка'}`,
+      );
       return next(new UnauthorizedError('Недействительный токен авторизации'));
     }
   };

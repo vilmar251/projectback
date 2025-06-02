@@ -1,18 +1,16 @@
 import { compareSync, hashSync } from 'bcrypt';
 import { inject, injectable } from 'inversify';
-import { UserEntity } from '../../database/entities/user.entity';
+import { UserEntity, UserRole } from '../../database/entities/user.entity';
 import { BadRequestError, NotFoundError, UnauthorizedError } from '../../errors';
 import logger from '../../logger/pino.logger';
-import { TYPES } from '../../types/types';
 import { JwtServiceInterface } from '../../services/jwt/jwt.types';
+import { TYPES } from '../../types/types';
 import { LoginDto } from './dto';
-import { User } from './user.types';
+import { TokenPair, User } from './user.types';
 
 @injectable()
 export default class UserService {
-  constructor(
-    @inject(TYPES.JwtService) private readonly jwtService: JwtServiceInterface
-  ) {}
+  constructor(@inject(TYPES.JwtService) private readonly jwtService: JwtServiceInterface) {}
   async getProfile(id: number): Promise<UserEntity> {
     logger.info('Получение профиля пользователя', { id });
     const user = await UserEntity.findByPk(id);
@@ -23,26 +21,30 @@ export default class UserService {
     return user;
   }
 
-  async create(user: Omit<User, 'id'>) {
+  async create(userData: Omit<User, 'id'> | any) {
     try {
-      logger.info('Создание нового пользователя', { email: user.email, userData: JSON.stringify(user) });
+      logger.info('Создание нового пользователя', { email: userData.email, userData: JSON.stringify(userData) });
 
-      const existingUser = await UserEntity.findOne({ where: { email: user.email } });
+      const existingUser = await UserEntity.findOne({ where: { email: userData.email } });
       if (existingUser) {
-        logger.error('Попытка регистрации с существующим email', { email: user.email });
+        logger.error('Попытка регистрации с существующим email', { email: userData.email });
         throw new BadRequestError('Пользователь с таким email уже существует');
       }
 
-      user.password = hashSync(user.password, 4);
+      userData.password = hashSync(userData.password, 4);
 
-      logger.info('Попытка создания пользователя в базе данных', { email: user.email });
-      const result = await UserEntity.create(user as Omit<User, 'id'>);
+      if (!userData.role) {
+        userData.role = UserRole.USER;
+      }
 
-      logger.info('Пользователь успешно создан', { email: result.email, userId: result.id });
+      logger.info('Попытка создания пользователя в базе данных', { email: userData.email, role: userData.role });
+      const result = await UserEntity.create(userData);
+
+      logger.info('Пользователь успешно создан', { email: result.email, userId: result.id, role: result.role });
       return result;
     } catch (error: unknown) {
       logger.error('Ошибка при создании пользователя', {
-        email: user.email,
+        email: userData.email,
         error: (error as Error).message,
         stack: (error as Error).stack,
       });
@@ -75,17 +77,61 @@ export default class UserService {
         throw new UnauthorizedError('Неверный пароль');
       }
 
-      // Генерируем JWT токен
-      const token = this.jwtService.generateToken({ userId: user.id });
+      const tokens = await this.jwtService.generateTokenPair(user.id, user.role);
 
-      logger.info('Авторизация успешна, токен сгенерирован', { email: user.email, userId: user.id });
+      logger.info('Авторизация успешна, токены сгенерированы', { email: user.email, userId: user.id });
       return {
-        user,
-        token
+        user: {
+          id: user.id,
+          email: user.email,
+          role: user.role,
+        },
+        ...tokens,
       };
     } catch (error: unknown) {
       logger.error('Ошибка при авторизации', {
         email: dto.email,
+        error: (error as Error).message,
+        stack: (error as Error).stack,
+      });
+      throw error;
+    }
+  }
+
+  async refreshTokens(refreshToken: string): Promise<TokenPair | null> {
+    try {
+      logger.info('Запрос на обновление токенов');
+      return await this.jwtService.refreshTokenPair(refreshToken);
+    } catch (error: unknown) {
+      logger.error('Ошибка при обновлении токенов', {
+        error: (error as Error).message,
+        stack: (error as Error).stack,
+      });
+      throw error;
+    }
+  }
+
+  async logout(refreshToken: string): Promise<boolean> {
+    try {
+      logger.info('Запрос на выход из системы');
+      return await this.jwtService.removeRefreshToken(refreshToken);
+    } catch (error: unknown) {
+      logger.error('Ошибка при выходе из системы', {
+        error: (error as Error).message,
+        stack: (error as Error).stack,
+      });
+      throw error;
+    }
+  }
+
+  async getAllUsers(): Promise<UserEntity[]> {
+    try {
+      logger.info('Получение списка всех пользователей');
+      const users = await UserEntity.findAll();
+      logger.info(`Получено ${users.length} пользователей`);
+      return users;
+    } catch (error: unknown) {
+      logger.error('Ошибка при получении списка пользователей', {
         error: (error as Error).message,
         stack: (error as Error).stack,
       });

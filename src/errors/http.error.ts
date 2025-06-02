@@ -25,3 +25,9 @@ export class BadRequestError extends HttpError {
     super(400, message);
   }
 }
+
+export class ForbiddenError extends HttpError {
+  constructor(message = 'Доступ запрещен') {
+    super(403, message);
+  }
+}
