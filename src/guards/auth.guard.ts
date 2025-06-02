@@ -1,9 +1,14 @@
 import { NextFunction, Request, Response } from 'express';
+import { UnauthorizedError } from '../errors';
+import logger from '../logger/pino.logger';
 
-export const AuthGuard = (req: Request, res: Response, next: NextFunction) => {
-  if (!req.session.userId) {
-    throw new Error('Unauthorized');
+// Оставлен для обратной совместимости
+export const AuthGuard = (req: Request, res: Response, next: NextFunction): void => {
+  logger.warn('Используется устаревший AuthGuard. Рекомендуется использовать jwtAuthMiddleware');
+
+  if (!req.userId) {
+    return next(new UnauthorizedError('Требуется авторизация'));
   }
 
-  next();
+  return next();
 };

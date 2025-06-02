@@ -21,7 +21,7 @@ export default class UserService {
     return user;
   }
 
-  async create(userData: Omit<User, 'id'> & { role?: UserRole }) {
+  async create(userData: { email: string; password: string; role?: UserRole }) {
     try {
       logger.info('Создание нового пользователя', { email: userData.email, userData: JSON.stringify(userData) });
 
