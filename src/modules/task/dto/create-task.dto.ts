@@ -1,5 +1,5 @@
 import { IsEnum, IsNumber, IsOptional, IsString } from 'class-validator';
-import { TaskImportance, TaskStatus } from '../task.types';
+import { SeverityEnum, TaskImportance, TaskStatus } from '../task.types';
 
 export class CreateTaskDto {
   @IsString()
@@ -14,8 +14,8 @@ export class CreateTaskDto {
   @IsEnum(TaskStatus)
   status: TaskStatus;
 
-  @IsEnum(['low', 'medium', 'high'])
-  severity: 'low' | 'medium' | 'high';
+  @IsEnum(SeverityEnum)
+  severity: SeverityEnum;
 
   @IsOptional()
   @IsNumber()

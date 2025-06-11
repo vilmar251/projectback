@@ -1,8 +1,7 @@
 import { Sequelize } from 'sequelize-typescript';
 import { appConfig } from '../config';
 import logger from '../logger/pino.logger';
-import { TaskEntity } from './entities/task.entity';
-import { UserEntity } from './entities/user.entity';
+import { TaskEntity, UserEntity } from './entities';
 
 export const connect = async () => {
   try {
@@ -16,10 +15,6 @@ export const connect = async () => {
       password: appConfig.postgresqlPassword,
       database: appConfig.postgresqlDatabase,
       models: [UserEntity, TaskEntity],
-      define: {
-        timestamps: true,
-        underscored: true,
-      },
     });
 
     await connection.authenticate();

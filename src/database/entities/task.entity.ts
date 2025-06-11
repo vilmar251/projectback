@@ -1,7 +1,29 @@
 import { BelongsTo, Column, DataType, ForeignKey, Model, Table } from 'sequelize-typescript';
 import { UserEntity } from './user.entity';
 
-@Table({ tableName: 'tasks' })
+export enum SeverityEnum {
+  LOW = 'low',
+  MEDIUM = 'medium',
+  HIGH = 'high',
+}
+
+export enum ImportanceEnum {
+  LOW = 'low',
+  MEDIUM = 'medium',
+  HIGH = 'high',
+}
+
+export enum StatusEnum {
+  IN_PROGRESS = 'in_progress',
+  REVIEW = 'review',
+  DONE = 'done',
+}
+
+@Table({
+  tableName: 'tasks',
+  timestamps: false,
+  underscored: true,
+})
 export class TaskEntity extends Model {
   @Column({
     type: DataType.INTEGER,
@@ -17,8 +39,8 @@ export class TaskEntity extends Model {
   @Column({ type: DataType.TEXT, allowNull: true })
   public description: string;
 
-  @Column({ type: DataType.ENUM('low', 'medium', 'high'), allowNull: false })
-  public severity: 'low' | 'medium' | 'high';
+  @Column({ type: DataType.STRING, allowNull: false })
+  public severity: SeverityEnum;
 
   @ForeignKey(() => UserEntity)
   @Column({ type: DataType.INTEGER, allowNull: true })
@@ -34,15 +56,25 @@ export class TaskEntity extends Model {
   @BelongsTo(() => UserEntity, 'assigneeId')
   public assignee: UserEntity;
 
-  @Column({ type: DataType.ENUM('low', 'medium', 'high'), allowNull: false })
-  public importance: 'low' | 'medium' | 'high';
+  @Column({ type: DataType.STRING, allowNull: false })
+  public importance: ImportanceEnum;
 
-  @Column({ type: DataType.ENUM('in_progress', 'review', 'done'), allowNull: false })
-  public status: 'in_progress' | 'review' | 'done';
+  @Column({ type: DataType.STRING, allowNull: false })
+  public status: StatusEnum;
 
-  @Column({ type: DataType.DATE })
+  @Column({
+    type: DataType.DATE,
+    allowNull: false,
+    field: 'created_at',
+    defaultValue: DataType.NOW,
+  })
   public createdAt: Date;
 
-  @Column({ type: DataType.DATE })
+  @Column({
+    type: DataType.DATE,
+    allowNull: false,
+    field: 'updated_at',
+    defaultValue: DataType.NOW,
+  })
   public updatedAt: Date;
 }

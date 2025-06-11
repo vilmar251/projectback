@@ -1,5 +1,5 @@
 import { Type } from 'class-transformer';
-import { IsNumber, IsString } from 'class-validator';
+import { IsNumber, IsOptional, IsString } from 'class-validator';
 
 export class AppConfigDto {
   @IsNumber()
@@ -21,4 +21,22 @@ export class AppConfigDto {
 
   @IsString()
   postgresqlDatabase: string;
+
+  @IsString()
+  redisHost: string;
+
+  @IsNumber()
+  @Type(() => Number)
+  redisPort: number;
+
+  @IsString()
+  @IsOptional()
+  redisPassword: string;
+
+  @IsNumber()
+  @Type(() => Number)
+  redisDb: number;
+
+  @IsString()
+  jwtSecret: string;
 }

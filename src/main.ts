@@ -1,50 +1,47 @@
 import 'reflect-metadata';
+import './modules/task/task.controller';
+import './modules/users/user.controller';
+import './modules/redis-demo/redis-demo.controller';
 import express from 'express';
-import expressSession from 'express-session';
+import { InversifyExpressServer } from 'inversify-express-utils';
 import { logRoutes } from './bootstrap/log-routes';
 import { appConfig } from './config';
+import { UpdateDisposableDomainsCron } from './cron/update-disposable-domains.cron';
 import { connect } from './database/connect';
+import { container } from './inversify.config';
 import logger from './logger/pino.logger';
 import { LogRequestMiddleware } from './middlewares';
-import { ErrorHandler } from './middlewares/error-handler';
-import { taskController } from './modules/task/task.module';
-import userController from './modules/users/user.controller';
+import { errorHandler } from './middlewares/error-handler';
+import { connectRedis } from './services/redis/redis.connect';
+import { TYPES } from './types/types';
 
-declare module 'express-session' {
-  interface SessionData {
-    userId: string;
-  }
-}
 const bootstrap = async () => {
-  const server = express();
-
   await connect();
 
-  server.use(
-    expressSession({
-      secret: 'my_secret',
-      resave: false,
-      saveUninitialized: false,
-      name: 'session_id',
-      cookie: {
-        secure: false,
-        httpOnly: true,
-        maxAge: 24 * 60 * 60 * 1000,
-      },
-    }),
-  );
+  await connectRedis();
 
-  server.use(express.json());
+  // Запускаю крон-задачу для обновления списка временных почтовых доменов
+  const updateDomainsCron = container.get<UpdateDisposableDomainsCron>(TYPES.UpdateDisposableDomainsCron);
+  updateDomainsCron.start();
 
-  server.use(LogRequestMiddleware);
+  // Создаем сервер Inversify
+  const server = new InversifyExpressServer(container);
 
-  server.use('/task', taskController.router);
-  server.use('/user', userController.router);
+  // Настраиваем сервер
+  server.setConfig((app) => {
+    app.use(express.json());
+    app.use(LogRequestMiddleware);
+  });
 
-  server.use(ErrorHandler);
-  logRoutes(server);
+  server.setErrorConfig((app) => {
+    app.use(errorHandler);
+  });
 
-  server.listen(appConfig.port, () => {
+  const app = server.build();
+
+  logRoutes(app);
+
+  app.listen(appConfig.port, () => {
     logger.info(`Server started on port ${appConfig.port}`);
   });
 };
