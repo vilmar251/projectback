@@ -6,17 +6,23 @@ import express from 'express';
 import { InversifyExpressServer } from 'inversify-express-utils';
 import { logRoutes } from './bootstrap/log-routes';
 import { appConfig } from './config';
+import { UpdateDisposableDomainsCron } from './cron/update-disposable-domains.cron';
 import { connect } from './database/connect';
 import { container } from './inversify.config';
 import logger from './logger/pino.logger';
 import { LogRequestMiddleware } from './middlewares';
 import { errorHandler } from './middlewares/error-handler';
 import { connectRedis } from './services/redis/redis.connect';
+import { TYPES } from './types/types';
 
 const bootstrap = async () => {
   await connect();
 
   await connectRedis();
+
+  // Запускаю крон-задачу для обновления списка временных почтовых доменов
+  const updateDomainsCron = container.get<UpdateDisposableDomainsCron>(TYPES.UpdateDisposableDomainsCron);
+  updateDomainsCron.start();
 
   // Создаем сервер Inversify
   const server = new InversifyExpressServer(container);

@@ -3,6 +3,7 @@ import { inject, injectable } from 'inversify';
 import { UserEntity, UserRole } from '../../database/entities/user.entity';
 import { BadRequestError, NotFoundError, UnauthorizedError } from '../../errors';
 import logger from '../../logger/pino.logger';
+import { IEmailValidatorService } from '../../services/email/email-validator.service';
 import { JwtServiceInterface } from '../../services/jwt/jwt.types';
 import { TYPES } from '../../types/types';
 import { LoginDto } from './dto';
@@ -10,7 +11,10 @@ import { TokenPair } from './user.types';
 
 @injectable()
 export default class UserService {
-  constructor(@inject(TYPES.JwtService) private readonly jwtService: JwtServiceInterface) {}
+  constructor(
+    @inject(TYPES.JwtService) private readonly jwtService: JwtServiceInterface,
+    @inject(TYPES.EmailValidatorService) private readonly emailValidatorService: IEmailValidatorService,
+  ) {}
   async getProfile(id: number): Promise<UserEntity> {
     logger.info('Получение профиля пользователя', { id });
     const user = await UserEntity.findByPk(id);
@@ -32,6 +36,11 @@ export default class UserService {
       }
 
       userData.password = hashSync(userData.password, 4);
+
+      const isDisposable = await this.emailValidatorService.isDisposableEmail(userData.email);
+      if (isDisposable) {
+        throw new BadRequestError('Использование временных почтовых адресов запрещено');
+      }
 
       if (!userData.role) {
         userData.role = UserRole.USER;
